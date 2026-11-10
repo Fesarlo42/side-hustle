@@ -4,6 +4,7 @@
  * Every panel reads from here.
  */
 import { create } from 'zustand'
+import { useShallow } from 'zustand/react/shallow'
 import type { ConnectionStatus, DataSource } from '@/data/source'
 import type { DemoCommand } from '@/types'
 import { applyMessage, applySnapshot, initialData, type DataState } from './reducer'
@@ -83,3 +84,48 @@ export const useDash = create<DashStore>()((set, get) => ({
     await activeSource?.command?.(cmd)
   },
 }))
+
+const DATA_KEYS = [
+  'loaded',
+  'members',
+  'projects',
+  'agents',
+  'tasks',
+  'insights',
+  'events',
+  'usage',
+  'pulse',
+  'week',
+  'config',
+  'demo',
+  'rippleSeq',
+  'needsSnapshot',
+] as const satisfies readonly (keyof DataState)[]
+
+/** The data part of the store, stable while nothing changes. Feed it to selectors with useMemo. */
+export function useData(): DataState {
+  return useDash(
+    useShallow((s) => {
+      const out = {} as Record<string, unknown>
+      for (const k of DATA_KEYS) out[k] = s[k]
+      return out as unknown as DataState
+    }),
+  )
+}
+
+/** Point at the thing a status line, insight or log row is about. */
+export function focusRef(ref: { type: string; id: string } | undefined): void {
+  if (!ref) return
+  if (ref.type === 'member') {
+    useDash.getState().selectMember(ref.id)
+    return
+  }
+  const el = document.getElementById(`${ref.type}-${ref.id}`)
+  if (!el) return
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  el.animate?.(
+    [{ outlineColor: 'var(--lumen-color-action-primary)' }, { outlineColor: 'transparent' }],
+    { duration: 1600 },
+  )
+  el.style.outline = '3px solid transparent'
+}

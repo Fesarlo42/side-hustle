@@ -15,7 +15,8 @@ test('dashboard runs the demo without console errors', async ({ page, request })
   ] as const) {
     await page.setViewportSize({ width: w, height: h })
     await page.goto('/')
-    await expect(page.getByLabel('Status line')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Activity log' })).toBeVisible()
+    await expect(page.getByRole('img', { name: /in flight · pool/ })).toBeVisible()
   }
   await page.waitForTimeout(30_000)
   for (const [w, h] of [
@@ -25,5 +26,7 @@ test('dashboard runs the demo without console errors', async ({ page, request })
     await page.setViewportSize({ width: w, height: h })
     await page.screenshot({ path: `e2e/screenshots/dashboard-${w}x${h}.png`, fullPage: true })
   }
+  // After 30 s at 10× the busy burst has happened.
+  await expect(page.getByText(/Busy|Payments is publishing|tasks in flight/).first()).toBeVisible()
   expect(errors).toEqual([])
 })
