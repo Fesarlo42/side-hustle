@@ -1,5 +1,8 @@
 import type { Metadata } from 'next'
 import { color, font } from '@/theme'
+import '@iubenda/lumen/fonts'
+import '@iubenda/lumen/tokens.css'
+import '@iubenda/lumen-next/index.css'
 import './globals.css'
 
 export const metadata: Metadata = {
