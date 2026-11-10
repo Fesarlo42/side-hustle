@@ -1,5 +1,5 @@
 'use client'
-import { animate, useMotionValue, useTransform, motion as m } from 'framer-motion'
+import { animate, motion as m, useMotionValue, useTransform } from 'framer-motion'
 import { useEffect } from 'react'
 import { useReducedMotionPref } from '@/hooks/useReducedMotionPref'
 import { motion } from '@/motion'
@@ -19,9 +19,15 @@ export function CountUp({ value, digits = 0 }: { value: number; digits?: number 
   }, [value, reduced, mv])
   return (
     <>
-      <m.span aria-hidden className="sh-num">
-        {text}
-      </m.span>
+      {reduced ? (
+        <span aria-hidden className="sh-num">
+          {value.toFixed(digits)}
+        </span>
+      ) : (
+        <m.span aria-hidden className="sh-num">
+          {text}
+        </m.span>
+      )}
       <span className="sh-sr">{value.toFixed(digits)}</span>
     </>
   )
