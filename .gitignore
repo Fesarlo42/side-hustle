@@ -9,3 +9,7 @@ e2e/screenshots
 next-env.d.ts
 .env*.local
 .DS_Store
+
+# Internal planning docs (kept local)
+side-hustle-dashboard-spec.md
+build-prompt.md
