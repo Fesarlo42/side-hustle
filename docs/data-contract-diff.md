@@ -33,6 +33,10 @@ The dashboard spec's "Decisions" section already overrides tokens/cost and the u
 | 19 | Pledge flow in Slack | Not in harness at all | `pledgeSource`, `pledge.answered`, `pledge.changed`, `Week.pledgeDeadline` | Harness/Slack skill must add it. Contract stays as proposed. |
 | 20 | Week reset | Not in harness | `resetAt` per member + `Week.resetAt` | Open question (same or per-person reset). Mock: everyone resets Mon 00:00 UTC. |
 | 21 | Done by non-owner (E17) | Not valid | Nothing | Nothing to show; `task.approved.actor` is always the owner. |
+| 22 | Time per section | Asana section history | Only `section` + `sectionSince` | Add `Task.sectionLog: {section, enteredAt, leftAt?}[]`. Flow panel averages finished stays. |
+| 23 | Hand-over after a release | Released task is unassigned (Next) | Nothing | Add `Task.previousPickerId?` so the card shows “Ana → Rui”. |
+| 24 | Pledge changed mid-week | Not in harness | `pledgePct`, `pledgeUpdatedAt` | Add `Member.pledgePrevPct?` for the “changed” marker in Members. |
+| 25 | Claim fit for a released task | Budget must fit the margin | Full `budgetPct` must fit | Use what's left of the budget: `budgetPct − usedPct` must fit the pledge left. |
 
 ## Asks for the harness side
 
