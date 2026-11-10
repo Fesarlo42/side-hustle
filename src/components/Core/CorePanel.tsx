@@ -25,7 +25,7 @@ export function CorePanel() {
 
   return (
     <div className="sh-core" style={{ display: 'grid', justifyItems: 'center', gap: 12 }}>
-      <div style={{ width: 'min(100%, 460px)' }}>
+      <div style={{ width: 'min(100%, 460px, max(300px, 52vh))' }}>
         <Core
           heartbeatsPerMin={inputs.heartbeatsPerMin}
           poolLeft={inputs.poolLeft}

@@ -152,10 +152,14 @@ export function WorkCards() {
         </Empty>
       ) : (
         <div
+          data-testid="work-scroll"
+          className="sh-fill"
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
             gap: 12,
+            alignContent: 'start',
+            paddingRight: 4,
           }}
         >
           <AnimatePresence initial={false}>

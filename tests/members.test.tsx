@@ -84,7 +84,7 @@ describe('Members', () => {
     expect(names().slice(0, 3)).toEqual(['Ana Silva', 'Marta Ribeiro', 'Rui Carvalho'])
   })
 
-  it('shows pledge, used, left, answer and status in words', () => {
+  it('shows pledge, used, left and status in words, without the answer column', () => {
     seed()
     render(<Members />)
     const ana = screen.getByRole('button', { name: 'Ana Silva' }).closest('tr') as HTMLElement
@@ -92,13 +92,11 @@ describe('Members', () => {
     expect(ana).toHaveTextContent('30%')
     expect(ana).toHaveTextContent('24% used')
     expect(ana).toHaveTextContent('6%')
-    expect(ana).toHaveTextContent('Answered')
     expect(ana).toHaveTextContent('Working')
     const bruno = screen.getByRole('button', { name: 'Bruno Costa' }).closest('tr') as HTMLElement
-    expect(bruno).toHaveTextContent('Carried over')
     expect(bruno).toHaveTextContent('Offline')
-    const leo = screen.getByRole('button', { name: 'Leo Martins' }).closest('tr') as HTMLElement
-    expect(leo).toHaveTextContent('New · 0%')
+    expect(screen.queryByRole('columnheader', { name: 'Answer' })).not.toBeInTheDocument()
+    expect(document.body).not.toHaveTextContent(/Answered|Carried over/)
   })
 
   it('marks a pledge changed mid-week', () => {
@@ -112,6 +110,12 @@ describe('Members', () => {
     seed()
     render(<Members />)
     expect(document.body.textContent).not.toMatch(/\btokens?\b|\bcosts?\b|€|\$/i)
+  })
+
+  it('sets the row height itself: the full list, no inner scroll', () => {
+    seed()
+    render(<Members />)
+    expect(screen.getByTestId('members-scroll')).not.toHaveClass('sh-fill')
   })
 
   it('selects a member on click and clears on second click', () => {

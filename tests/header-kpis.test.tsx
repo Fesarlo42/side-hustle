@@ -34,14 +34,19 @@ describe('Header', () => {
     expect(screen.getByText(/in 6 h/)).toBeInTheDocument()
     expect(screen.getByText('13 of 15')).toBeInTheDocument()
     expect(screen.getByText(/closed/)).toBeInTheDocument()
-    expect(screen.getByText(/Live · updated/)).toBeInTheDocument()
+    // A steady label: no ticking seconds that make the header jump.
+    expect(screen.getByRole('status')).toHaveTextContent(/^Live$/)
+    expect(screen.getByRole('status')).toHaveAttribute(
+      'title',
+      expect.stringMatching(/^Last update \d\d:\d\d:\d\d$/),
+    )
   })
 
   it('goes grey when the stream drops', () => {
     seedStore(base(), { connection: 'offline' })
     render(<Header />)
     expect(screen.getByText(/Offline · reconnecting/)).toBeInTheDocument()
-    expect(screen.queryByText(/Live · updated/)).not.toBeInTheDocument()
+    expect(screen.getByRole('status')).not.toHaveTextContent(/^Live$/)
   })
 })
 

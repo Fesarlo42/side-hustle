@@ -45,7 +45,11 @@ export function Insights() {
       {items.length === 0 ? (
         <Empty>Nothing to flag. The agents will post here when they notice something.</Empty>
       ) : (
-        <div style={{ display: 'grid', gap: 10 }}>
+        <div
+          data-testid="insights-scroll"
+          className="sh-fill"
+          style={{ display: 'grid', gap: 10, alignContent: 'start', paddingRight: 4 }}
+        >
           <AnimatePresence initial={false}>
             {items.map((i) => {
               const sev = SEVERITY[i.severity]

@@ -48,8 +48,8 @@ export function Leaderboard() {
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))',
-          gap: 20,
+          gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+          gap: 24,
         }}
       >
         <List label="Published" items={lb.published} />

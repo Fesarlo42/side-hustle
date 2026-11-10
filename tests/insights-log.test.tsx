@@ -96,6 +96,12 @@ describe('Insights', () => {
     expect(r).toHaveTextContent(/Resolved at \d\d:\d\d/)
   })
 
+  it('scrolls inside its panel so it matches the panel next to it', () => {
+    seed()
+    render(<Insights />)
+    expect(screen.getByTestId('insights-scroll')).toHaveClass('sh-fill')
+  })
+
   it('has no buttons that change anything', () => {
     seed()
     render(<Insights />)

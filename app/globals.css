@@ -25,8 +25,8 @@ a {
 
 .sh-page {
   display: grid;
-  gap: 20px;
-  padding: 20px 24px 72px;
+  gap: 16px;
+  padding: 16px 24px 72px;
   max-width: 1840px;
   margin: 0 auto;
 }
@@ -40,7 +40,14 @@ a {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
-  align-items: start;
+  align-items: stretch;
+}
+/* Members scroll inside their panel; the header row stays put. */
+.sh-members th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--lumen-color-table-header-bg);
 }
 .sh-panel {
   background: var(--lumen-color-surface-default);
@@ -48,6 +55,17 @@ a {
   border-radius: var(--lumen-radius-xl);
   padding: 20px;
   min-width: 0;
+}
+/* In side-by-side rows, panels are flex columns so a .sh-fill body can take
+   the height the neighbour sets, scrolling instead of leaving a gap. */
+.sh-two > .sh-panel {
+  display: flex;
+  flex-direction: column;
+}
+.sh-fill {
+  flex: 1 1 0;
+  min-height: 320px;
+  overflow-y: auto;
 }
 .sh-panel > h2 {
   margin: 0 0 12px;
@@ -104,6 +122,10 @@ a {
   }
   .sh-two {
     grid-template-columns: 1fr;
+  }
+  .sh-fill {
+    flex: none;
+    max-height: 520px;
   }
 }
 @media (max-width: 640px) {

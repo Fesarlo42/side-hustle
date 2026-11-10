@@ -167,6 +167,12 @@ describe('Work in progress', () => {
     expect(card('Split checkout summary')).toHaveClass('sh-dim')
   })
 
+  it('scrolls inside its panel so it matches the members list next to it', () => {
+    seed()
+    render(<WorkCards />)
+    expect(screen.getByTestId('work-scroll')).toHaveClass('sh-fill')
+  })
+
   it('says so when nothing is running', () => {
     seedStore(snapshot())
     render(<WorkCards />)

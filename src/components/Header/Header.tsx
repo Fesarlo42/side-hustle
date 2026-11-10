@@ -44,7 +44,10 @@ export function Header() {
       <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 20 }}>
         <span>
           <strong>Week {week.number}</strong> · resets {shortDate(week.resetAt)} ·{' '}
-          <span className="sh-num">in {duration(resetIn)}</span>
+          {/* Fixed width so the minute countdown never shifts the header. */}
+          <span className="sh-num" style={{ display: 'inline-block', minWidth: '7.5em' }}>
+            in {duration(resetIn)}
+          </span>
         </span>
         <span>
           <strong className="sh-num">
@@ -52,10 +55,15 @@ export function Header() {
           </strong>{' '}
           answered · {simNow > deadline ? 'closed' : 'closes'} {deadlineDay}
         </span>
+        {/* A steady label; the exact time of the last update is in the tooltip. */}
         <span
           role="status"
-          aria-live="polite"
-          style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
+          title={
+            lastMessageAt
+              ? `Last update ${new Date(lastMessageAt).toLocaleTimeString('en-GB')}`
+              : 'Waiting for data'
+          }
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, minWidth: 210 }}
         >
           <span
             aria-hidden
@@ -67,7 +75,7 @@ export function Header() {
             }}
           />
           {live ? (
-            <span>Live · updated {ago} s ago</span>
+            'Live'
           ) : (
             <Badge variant="neutral">
               <Icon name="arrow-clockwise" size="sm" />{' '}
@@ -76,7 +84,7 @@ export function Header() {
           )}
         </span>
         <Toggle
-          label="Reduced motion"
+          label={`Reduced motion: ${reduced ? 'on' : 'off'}`}
           checked={reduced}
           onChange={({ checked }) => setReducedMotion(checked)}
         />

@@ -1,6 +1,5 @@
 'use client'
 import {
-  Badge,
   Segment,
   Segmented,
   Table,
@@ -9,21 +8,13 @@ import {
   TableHead,
   TableRow,
 } from '@iubenda/lumen-next'
-import type { BadgeVariant } from '@iubenda/lumen'
 import { useMemo, useState } from 'react'
 import { Avatar, IconText, Panel } from '@/components/ui/ui'
 import { pct } from '@/lib/format'
 import { leftPct, sortedMembers, type MemberSort } from '@/store/selectors'
 import { useData, useDash } from '@/store/store'
 import { color } from '@/theme'
-import type { Member, MemberStatus, PledgeSource } from '@/types'
-
-const ANSWER: Record<PledgeSource, { text: string; variant: BadgeVariant }> = {
-  answered: { text: 'Answered', variant: 'success' },
-  carried_over: { text: 'Carried over', variant: 'neutral' },
-  pending: { text: 'Waiting', variant: 'warning' },
-  default_zero: { text: 'New · 0%', variant: 'info' },
-}
+import type { Member, MemberStatus } from '@/types'
 
 const STATUS: Record<
   MemberStatus,
@@ -38,15 +29,24 @@ function PledgeCell({ m }: { m: Member }) {
   const changed = m.pledgePrevPct !== undefined && m.pledgePrevPct !== m.pledgePct
   const ratio = m.pledgePct > 0 ? Math.min(1, m.pledgeUsedPct / m.pledgePct) : 0
   return (
-    <div style={{ display: 'grid', gap: 4, minWidth: 120 }}>
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: '52px minmax(60px, 1fr) auto',
+        gap: 10,
+        alignItems: 'center',
+        minWidth: 220,
+      }}
+    >
       <span className="sh-num">
         <strong>{pct(m.pledgePct)}</strong>
         {changed && (
           <span
             title={`Changed this week (was ${m.pledgePrevPct}%)`}
-            style={{ marginLeft: 6, color: color.action }}
+            aria-label={`Changed this week (was ${m.pledgePrevPct}%)`}
+            style={{ marginLeft: 4, color: color.action }}
           >
-            ▲ changed
+            ▲
           </span>
         )}
       </span>
@@ -68,7 +68,7 @@ function PledgeCell({ m }: { m: Member }) {
           }}
         />
       </div>
-      <span className="sh-muted sh-num" style={{ fontSize: 14 }}>
+      <span className="sh-muted sh-num" style={{ fontSize: 14, whiteSpace: 'nowrap' }}>
         {pct(m.pledgeUsedPct, m.pledgeUsedPct % 1 === 0 ? 0 : 1)} used
       </span>
     </div>
@@ -99,14 +99,13 @@ export function Members() {
         </Segmented>
       }
     >
-      <div style={{ overflowX: 'auto' }}>
+      <div data-testid="members-scroll" className="sh-members" style={{ overflowX: 'auto' }}>
         <Table label="Members of the pool">
           <TableHead>
             <TableRow>
               <TableCell>Person</TableCell>
               <TableCell>Pledge</TableCell>
               <TableCell align="end">Left</TableCell>
-              <TableCell>Answer</TableCell>
               <TableCell>Status</TableCell>
             </TableRow>
           </TableHead>
@@ -121,8 +120,8 @@ export function Members() {
                       id={`member-${m.id}`}
                       style={{ display: 'flex', alignItems: 'center', gap: 10 }}
                     >
-                      <Avatar member={m} />
-                      <span style={{ display: 'grid' }}>
+                      <Avatar member={m} size={30} />
+                      <span style={{ display: 'grid', lineHeight: 1.25 }}>
                         <button
                           className="sh-linkbtn"
                           aria-pressed={isSel}
@@ -144,11 +143,6 @@ export function Members() {
                     <strong className="sh-num">
                       {pct(leftPct(m), leftPct(m) % 1 === 0 ? 0 : 1)}
                     </strong>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={ANSWER[m.pledgeSource].variant}>
-                      {ANSWER[m.pledgeSource].text}
-                    </Badge>
                   </TableCell>
                   <TableCell>
                     <IconText icon={status.icon} tone={status.tone}>
