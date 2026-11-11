@@ -111,6 +111,14 @@ describe('Work in progress', () => {
     ])
   })
 
+  it('groups cards under their section with a count', () => {
+    seed()
+    render(<WorkCards />)
+    const groups = screen.getAllByRole('group').map((g) => g.getAttribute('aria-label'))
+    expect(groups).toEqual(['Doing: 2', 'To Review: 1', 'Done: 1'])
+    expect(within(screen.getByRole('group', { name: 'Doing: 2' })).getAllByRole('article')).toHaveLength(2)
+  })
+
   it('shows title, project and the Asana link only', () => {
     seed()
     render(<WorkCards />)

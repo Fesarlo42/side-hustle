@@ -561,3 +561,74 @@ a {
   animation: none !important;
   transition: none !important;
 }
+
+/* ---------- Work in progress ---------- */
+.sh-lane {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--lumen-neutral-700);
+}
+.sh-lane::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+.sh-lane .sh-num {
+  color: var(--lumen-color-text-primary);
+}
+.sh-card {
+  display: grid;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--lumen-color-border-subtle);
+  border-left: 4px solid var(--lumen-color-border-default);
+  background: var(--lumen-color-surface-default);
+  box-shadow: 0 6px 18px -14px rgb(16 11 75 / 40%);
+  transition:
+    transform 0.15s ease-out,
+    box-shadow 0.15s ease-out;
+}
+.sh-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px -16px rgb(59 41 255 / 45%);
+}
+.sh-chip {
+  white-space: nowrap;
+  font-size: 13px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--lumen-blue-25);
+  color: var(--lumen-blue-950);
+}
+.sh-handover {
+  justify-self: start;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  color: var(--lumen-color-action-primary);
+  background: var(--lumen-blue-25);
+  animation: sh-pop 0.6s ease-out;
+}
+@keyframes sh-pop {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
