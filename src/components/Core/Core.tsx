@@ -177,7 +177,13 @@ interface View {
   t: number
   phase: number
   dots: Record<string, DotView>
-  particles: { id: number; x: number; y: number; opacity: number }[]
+  particles: {
+    id: number
+    x: number
+    y: number
+    opacity: number
+    trail: { x: number; y: number }[]
+  }[]
   ripples: { id: number; k: number }[]
 }
 
@@ -208,7 +214,7 @@ function staticView(p: CoreProps): View {
   }
 }
 
-interface Sim {
+export interface Sim {
   t: number
   phase: number
   period: number
@@ -221,7 +227,24 @@ interface Sim {
   seq: number
 }
 
-function stepSim(s: Sim, p: CoreProps, dt: number): View {
+/** Fresh animation state for a core. */
+export function newSim(p: CoreProps): Sim {
+  return {
+    t: 0,
+    phase: 0,
+    period: targetPeriod(p.heartbeatsPerMin, p.health, p.busyHeartbeatsPerMin),
+    wobble: p.wobble ? 1 : 0,
+    nucleus: p.poolLeft,
+    dots: new Map(),
+    particles: [],
+    nextSpawn: new Map(),
+    ripples: [],
+    seq: 0,
+  }
+}
+
+/** One animation step. Pure apart from mutating `s`; exported for tests. */
+export function stepSim(s: Sim, p: CoreProps, dt: number): View {
   s.t += dt
   // Smooth the rate so the pulse never jumps.
   const target = targetPeriod(p.heartbeatsPerMin, p.health, p.busyHeartbeatsPerMin ?? 30)
@@ -267,13 +290,21 @@ function stepSim(s: Sim, p: CoreProps, dt: number): View {
     const a = dots[pt.from]
     const z = dots[pt.to]
     if (!a || !z) continue
+    // Picker → centre → owner; the trail is the same path a moment earlier.
+    const at = (k: number) => {
+      const kk = clamp(k)
+      const seg = kk < 0.5 ? easeInOut(kk * 2) : easeInOut((kk - 0.5) * 2)
+      return {
+        x: kk < 0.5 ? lerp(a.x, 0, seg) : lerp(0, z.x, seg),
+        y: kk < 0.5 ? lerp(a.y, 0, seg) : lerp(0, z.y, seg),
+      }
+    }
     const kk = pt.age / PARTICLE_LIFE_S
-    const seg = kk < 0.5 ? easeInOut(kk * 2) : easeInOut((kk - 0.5) * 2)
     particles.push({
       id: pt.id,
-      x: kk < 0.5 ? lerp(a.x, 0, seg) : lerp(0, z.x, seg),
-      y: kk < 0.5 ? lerp(a.y, 0, seg) : lerp(0, z.y, seg),
-      opacity: 0.85 * Math.min(1, kk * 6, (1 - kk) * 6),
+      ...at(kk),
+      opacity: 0.9 * Math.min(1, kk * 6, (1 - kk) * 6),
+      trail: [at(kk - 0.02), at(kk - 0.04), at(kk - 0.06)],
     })
   }
   return {
@@ -294,18 +325,8 @@ export function Core(props: CoreProps) {
   const [view, setView] = useState<View | null>(null)
 
   // Animation state lives in refs and is only touched from effects.
-  const sim = useRef<Sim>({
-    t: 0,
-    phase: 0,
-    period: targetPeriod(props.heartbeatsPerMin, props.health, props.busyHeartbeatsPerMin),
-    wobble: props.wobble ? 1 : 0,
-    nucleus: props.poolLeft,
-    dots: new Map(),
-    particles: [],
-    nextSpawn: new Map(),
-    ripples: [],
-    seq: 0,
-  })
+  const sim = useRef<Sim>(newSim(props))
+
   const inputs = useRef(props)
   useEffect(() => {
     inputs.current = props
@@ -355,6 +376,13 @@ export function Core(props: CoreProps) {
           <clipPath id={`${uid}-face`}>
             <circle r={DOT_R - 2} />
           </clipPath>
+          <filter id={`${uid}-glow`} x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation={4} result="b" />
+            <feMerge>
+              <feMergeNode in="b" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
           <filter id={`${uid}-grey`}>
             <feColorMatrix type="saturate" values="0" />
           </filter>
@@ -368,11 +396,12 @@ export function Core(props: CoreProps) {
         {v.ripples.map((r) => (
           <circle
             key={r.id}
-            r={r2(MEMBRANE_R * (1 + 0.9 * easeInOut(r.k)))}
+            r={r2(MEMBRANE_R * (1 + 1.1 * easeInOut(r.k)))}
             fill="none"
-            stroke={tint.stroke}
-            strokeWidth={3 * (1 - r.k)}
-            opacity={0.6 * (1 - r.k)}
+            stroke={tint.fill}
+            strokeWidth={r2(5 * (1 - r.k))}
+            opacity={r2(0.7 * (1 - r.k))}
+            filter={`url(#${uid}-glow)`}
           />
         ))}
 
@@ -413,7 +442,13 @@ export function Core(props: CoreProps) {
         </g>
 
         {/* Nucleus: size = pledge left */}
-        <circle r={r2(nucleusR)} fill="url(#core-nucleus)" stroke={tint.stroke} strokeWidth={2} />
+        <circle
+          r={r2(nucleusR)}
+          fill="url(#core-nucleus)"
+          stroke={tint.stroke}
+          strokeWidth={2}
+          filter={`url(#${uid}-glow)`}
+        />
         <circle
           r={r2(nucleusR * 0.4)}
           fill="none"
@@ -433,16 +468,23 @@ export function Core(props: CoreProps) {
         </text>
 
         {/* Particles: pledge flowing picker → core → owner */}
-        {v.particles.map((pt) => (
-          <circle
-            key={pt.id}
-            cx={r2(pt.x)}
-            cy={r2(pt.y)}
-            r={3.2}
-            fill={color.action}
-            opacity={pt.opacity}
-          />
-        ))}
+        <g filter={`url(#${uid}-glow)`}>
+          {v.particles.map((pt) => (
+            <g key={pt.id} opacity={r2(pt.opacity)}>
+              {pt.trail.map((tr, i) => (
+                <circle
+                  key={i}
+                  cx={r2(tr.x)}
+                  cy={r2(tr.y)}
+                  r={r2(2.8 - i * 0.7)}
+                  fill={color.action}
+                  opacity={r2(0.5 - i * 0.14)}
+                />
+              ))}
+              <circle cx={r2(pt.x)} cy={r2(pt.y)} r={3.6} fill={color.action} />
+            </g>
+          ))}
+        </g>
 
         {/* Members */}
         {members.map((m) => {

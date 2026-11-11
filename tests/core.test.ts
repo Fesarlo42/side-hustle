@@ -37,3 +37,39 @@ describe('core pulse', () => {
     expect(initials('Leo')).toBe('L')
   })
 })
+
+import { stepSim, newSim } from '@/components/Core/Core'
+
+describe('core animation frames', () => {
+  const props = {
+    heartbeatsPerMin: 20,
+    poolLeft: 0.5,
+    health: 'calm' as const,
+    members: [
+      { id: 'a', name: 'Ana Silva', ring: 'outer' as const, offline: false, faded: false },
+      { id: 'b', name: 'Bruno Costa', ring: 'inner' as const, offline: false, faded: false },
+    ],
+    flows: [{ taskId: 't1', from: 'a', to: 'b' }],
+    rippleSeq: 0,
+    wobble: false,
+    reducedMotion: false,
+    label: 'x',
+  }
+
+  it('sends particles from picker to owner, each with a short trail', () => {
+    const sim = newSim(props)
+    let view = stepSim(sim, props, 0.05)
+    for (let i = 0; i < 60; i++) view = stepSim(sim, props, 0.05)
+    expect(view.particles.length).toBeGreaterThan(0)
+    for (const p of view.particles) expect(p.trail).toHaveLength(3)
+  })
+
+  it('stops spawning when the task leaves Doing', () => {
+    const sim = newSim(props)
+    for (let i = 0; i < 60; i++) stepSim(sim, props, 0.05)
+    const idle = { ...props, flows: [] }
+    let view = stepSim(sim, idle, 0.05)
+    for (let i = 0; i < 80; i++) view = stepSim(sim, idle, 0.05)
+    expect(view.particles).toHaveLength(0)
+  })
+})
