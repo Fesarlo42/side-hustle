@@ -17,8 +17,13 @@ export interface ServerSource {
   command?(cmd: DemoCommand): void
 }
 
+/** Real data by default; `SIDE_HUSTLE_SOURCE=mock` plays the scripted demo. */
+export function sourceKind(env: Record<string, string | undefined> = process.env): string {
+  return (env.SIDE_HUSTLE_SOURCE ?? 'asana').trim().toLowerCase() || 'asana'
+}
+
 export function getServerSource(): ServerSource {
-  const kind = process.env.SIDE_HUSTLE_SOURCE ?? 'mock'
+  const kind = sourceKind()
   switch (kind) {
     case 'mock':
       return getMockHub()

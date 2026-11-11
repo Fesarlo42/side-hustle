@@ -2,7 +2,7 @@
 
 A read-only, real-time page that shows who pledged spare Claude usage, what the agents are doing with it, where it goes and what needs attention. A living core in the middle shows the system's pulse.
 
-Built for the Athens hackathon 2026. It runs on a seeded mock today; the real data (side-hustle harness, Slack, Asana) plugs in later without UI changes.
+Built for the Athens hackathon 2026. By default it shows the live [Side Hustle project](https://app.asana.com/1/13327221380952/project/1220379119011503) in Asana (see [The Asana source](#the-asana-source)). A seeded mock with a scripted 3-minute demo is still there for rehearsals.
 
 ## Run it
 
@@ -12,16 +12,17 @@ Needs Node 24+ and read access to the team.blue GitLab npm registry (for the Lum
 # Lumen comes from the private registry; .npmrc reads the token from GITLAB_TOKEN
 export GITLAB_TOKEN=<personal access token with read_api>
 npm install
-npm run dev            # http://localhost:3000
+npm run dev                              # live Asana data, http://localhost:3000
+SIDE_HUSTLE_SOURCE=mock npm run dev      # the scripted demo instead
 ```
 
-The page starts the scripted 3-minute demo at 10× (see below). The demo bar in the bottom-right corner changes speed (1×, 10×, 60×), pauses and restarts it, and can be hidden. `/dev/core` is a tuning page for the core with a slider per input.
+With the mock, the page plays the scripted 3-minute demo at 10× (see below), and a demo bar in the bottom-right corner changes speed (1×, 10×, 60×), pauses and restarts it. The bar doesn't show with real data. `/dev/core` is a tuning page for the core with a slider per input.
 
 | Command | What it does |
 | --- | --- |
 | `npm run dev` | Dev server |
 | `npm test` | Unit and component tests (Vitest, Testing Library) |
-| `npm run test:e2e` | Playwright smoke test: runs the demo for 30 s and saves screenshots at 1280×720 and 1920×1080 to `e2e/screenshots/` |
+| `npm run test:e2e` | Playwright smoke test (starts its own server on the mock, port 3100): runs the demo for 30 s and saves screenshots at 1280×720 and 1920×1080 to `e2e/screenshots/` |
 | `npm run lint` / `npm run typecheck` | ESLint / TypeScript |
 | `npm run build` | Production build |
 
@@ -72,11 +73,10 @@ The mock cast in `src/data/mock/cast.ts` is fictional and is replaced by real pe
 
 ### The Asana source
 
-`SIDE_HUSTLE_SOURCE=asana` reads the live [Side Hustle project](https://app.asana.com/1/13327221380952/project/1220379119011503) instead of the mock. It needs an Asana personal access token (Asana → Settings → Apps → Developer apps) that can see the project:
+This is the default source (`SIDE_HUSTLE_SOURCE=asana`): it reads the live [Side Hustle project](https://app.asana.com/1/13327221380952/project/1220379119011503). It needs an Asana personal access token (Asana → Settings → Apps → Developer apps) that can see the project:
 
 ```bash
 # .env.local (git-ignored)
-SIDE_HUSTLE_SOURCE=asana
 ASANA_TOKEN=<personal access token>
 ```
 
