@@ -13,8 +13,9 @@
  *   "Where pledges go" uses the same claims, so the numbers agree.
  * - A task's "used" = the `~n%` of its usage reports (an estimate), 0 until the first report.
  * - Members without a pledge record this week have pledge 0 ("pending") and show as offline.
- * - Teams aren't in Asana: everyone is in "iubenda". Projects come from the task's target resource.
+ * - Teams aren't in Asana: departments come from data/teams.json (see teams.ts); everyone else is in "iubenda". Projects come from the task's target resource.
  */
+import { teamFor, type TeamMap } from './teams'
 import { computeHealth } from '@/config/health'
 import { SECTION_LABEL, joinNames, partOfDay, plural, say, weekday } from '@/data/mock/text'
 import type {
@@ -181,7 +182,7 @@ function projectOf(task: RawTask): Project {
 
 // ---------- Build ----------
 
-export function build(data: AsanaData, now: number): Built {
+export function build(data: AsanaData, now: number, teams: TeamMap = {}): Built {
   const week = isoWeek(now)
   const resetAt = week.startsAt + 7 * DAY
   const timeoutMs = WORKFLOW.heartbeatTimeoutMin * 60_000
@@ -619,7 +620,7 @@ export function build(data: AsanaData, now: number): Built {
       id,
       name: u.name ?? 'Someone',
       ...(u.photo?.image_60x60 ? { avatarUrl: u.photo.image_60x60 } : {}),
-      team: DEFAULT_PROJECT.team,
+      team: teamFor(u.name ?? '', teams) ?? DEFAULT_PROJECT.team,
       slackUserId: '',
       joinedAt: iso(Math.min(projectCreated, seen)),
       status: working.has(id) ? 'working' : latest ? 'idle' : 'offline',

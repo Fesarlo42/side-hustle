@@ -10,6 +10,7 @@ import { build, buildPulse, type AsanaData, type Built } from './build'
 import { AsanaReader } from './client'
 import { ASANA } from './config'
 import { EXPORT_FILE, ExportReader } from './export'
+import { readTeams } from './teams'
 
 const POLL_MS = Number(process.env.SIDE_HUSTLE_ASANA_POLL_MS ?? 20_000)
 /** The export is a local file: checking it is cheap. */
@@ -115,8 +116,8 @@ class AsanaHub implements ServerSource {
     if (this.polling) return
     this.polling = true
     try {
-      const data = await this.reader.read()
-      const next = build(data, Date.now())
+      const [data, teams] = await Promise.all([this.reader.read(), readTeams()])
+      const next = build(data, Date.now(), teams)
       const first = !this.loaded
       const prev = this.current
       this.current = next
