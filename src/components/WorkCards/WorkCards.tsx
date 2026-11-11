@@ -14,11 +14,11 @@ import type { Section, Task } from '@/types'
 
 /** One accent per section (the section name is always written too). */
 const ACCENT: Partial<Record<Section, string>> = {
-  doing: accent.violet,
-  to_review: accent.saffron,
-  qa_review: accent.orchid,
-  needs_info: accent.coral,
-  done: accent.teal,
+  doing: accent.indigo,
+  to_review: accent.violet,
+  qa_review: accent.cyan,
+  needs_info: accent.pink,
+  done: accent.mint,
 }
 
 function Card({ task, now, dim }: { task: Task; now: number; dim: boolean }) {

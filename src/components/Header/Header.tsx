@@ -1,5 +1,7 @@
 'use client'
 import { Badge, Icon, Toggle } from '@iubenda/lumen-next'
+import Image from 'next/image'
+import logo from '@/assets/brand/you-token-to-me.png'
 import { useReducedMotionPref } from '@/hooks/useReducedMotionPref'
 import { useNow } from '@/hooks/useNow'
 import { duration, shortDate } from '@/lib/format'
@@ -7,16 +9,6 @@ import { nowOf } from '@/store/selectors'
 import { useDash } from '@/store/store'
 
 /** The mark: a tiny core (membrane and nucleus), breathing slowly. */
-function Mark() {
-  return (
-    <svg className="sh-mark" viewBox="-20 -20 40 40" aria-hidden>
-      <circle r={17} className="sh-mark__ring" />
-      <circle r={11} className="sh-mark__membrane" />
-      <circle r={5} className="sh-mark__nucleus" />
-    </svg>
-  )
-}
-
 export function Header() {
   const week = useDash((s) => s.week)
   const simNow = useDash(nowOf)
@@ -42,9 +34,16 @@ export function Header() {
     <header className="sh-header">
       <div className="sh-header__in">
         <div className="sh-brand">
-          <Mark />
+          <Image
+            src={logo}
+            alt="You Token to Me? · Side hustle"
+            width={226}
+            height={52}
+            priority
+            className="sh-logo"
+          />
           <div>
-            <div className="sh-brand__name">Side hustle</div>
+            <div className="sh-brand__name sh-sr">Side hustle</div>
             <div className="sh-brand__tag">No token left unused.</div>
           </div>
         </div>

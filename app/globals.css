@@ -818,3 +818,138 @@ a {
 .sh-split .sh-fill {
   min-height: 600px;
 }
+
+/* =====================================================================
+   "You Token to Me?" brand: electric indigo, mint and white,
+   bold and rounded like the banners. Overrides the earlier look.
+   ===================================================================== */
+:root {
+  --sh-indigo: #2b0bd8;
+  --sh-mint: #5cefcb;
+  --sh-mint-deep: #1fc9a3;
+  --sh-night: #14075e;
+  --sh-lilac: #f4f2ff;
+  /* Lumen's primary action becomes the brand indigo (buttons, toggles, segments). */
+  --lumen-color-action-primary: var(--sh-indigo);
+}
+body {
+  background:
+    radial-gradient(
+      1200px 600px at 100% -10%,
+      color-mix(in srgb, var(--sh-mint) 14%, transparent),
+      transparent 60%
+    ),
+    var(--sh-lilac) !important;
+}
+/* Header bar: the exact banner indigo, so the logo sits in it seamlessly. */
+.sh-header {
+  background: var(--sh-indigo);
+  box-shadow: 0 10px 30px -12px color-mix(in srgb, var(--sh-indigo) 60%, transparent);
+}
+.sh-logo {
+  height: 52px;
+  width: auto;
+  display: block;
+}
+.sh-brand__tag {
+  color: var(--sh-mint);
+  font-weight: 600;
+}
+
+/* Section heroes: one banner per group of panels. */
+.sh-section {
+  display: grid;
+  gap: 18px;
+}
+.sh-banner {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: clamp(14px, 2vw, 22px) 16px;
+  border-radius: 28px;
+  background: var(--sh-indigo);
+  overflow: hidden;
+  box-shadow: 0 24px 50px -30px var(--sh-indigo);
+}
+/* A slow mint glint across the banner. */
+.sh-banner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    110deg,
+    transparent 30%,
+    color-mix(in srgb, var(--sh-mint) 22%, transparent) 50%,
+    transparent 70%
+  );
+  transform: translateX(-100%);
+  animation: sh-glint 7s ease-in-out infinite;
+  pointer-events: none;
+}
+.sh-banner__img {
+  position: relative;
+  height: clamp(52px, 6.5vw, 92px);
+  width: auto;
+  max-width: 100%;
+}
+@keyframes sh-glint {
+  0%,
+  55% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sh-banner::after {
+    display: none;
+  }
+}
+
+/* Cards: rounder, borderless, a soft indigo shadow. */
+.sh-panel {
+  border: 0;
+  border-radius: 24px;
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 80%) inset,
+    0 22px 44px -32px color-mix(in srgb, var(--sh-indigo) 55%, transparent);
+}
+.sh-panel h2 {
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--sh-night);
+}
+.sh-panel h2::after {
+  content: '';
+  display: block;
+  width: 36px;
+  height: 4px;
+  margin-top: 6px;
+  border-radius: 4px;
+  background: var(--sh-mint);
+}
+.sh-big {
+  color: var(--sh-indigo);
+  font-weight: 800;
+}
+.sh-tile {
+  border: 0;
+  border-radius: 22px;
+  box-shadow: 0 18px 40px -30px color-mix(in srgb, var(--sh-indigo) 60%, transparent);
+}
+.sh-chip {
+  background: color-mix(in srgb, var(--sh-indigo) 8%, white);
+  color: var(--sh-night);
+}
+.sh-handover {
+  background: color-mix(in srgb, var(--sh-mint) 28%, white);
+  color: var(--sh-night);
+}
+.sh-person:hover,
+.sh-card:hover {
+  box-shadow: 0 16px 30px -18px color-mix(in srgb, var(--sh-indigo) 55%, transparent);
+}
+.sh-more {
+  color: var(--sh-indigo);
+}

@@ -14,7 +14,7 @@
  */
 import { useEffect, useId, useRef, useState } from 'react'
 import { breath, motion } from '@/motion'
-import { color, healthTint } from '@/theme'
+import { brand, color, healthTint } from '@/theme'
 import type { Health } from '@/types'
 
 export interface CoreMember {
@@ -479,11 +479,11 @@ export function Core(props: CoreProps) {
                   cx={r2(tr.x)}
                   cy={r2(tr.y)}
                   r={r2(2.8 - i * 0.7)}
-                  fill={color.action}
+                  fill={brand.mintDeep}
                   opacity={r2(0.5 - i * 0.14)}
                 />
               ))}
-              <circle cx={r2(pt.x)} cy={r2(pt.y)} r={3.6} fill={color.action} />
+              <circle cx={r2(pt.x)} cy={r2(pt.y)} r={3.6} fill={brand.mintDeep} />
             </g>
           ))}
         </g>

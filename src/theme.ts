@@ -39,7 +39,7 @@ export const color = {
 
 /** Core tint per health state: fill, stroke (strong, for contrast) and a soft halo. */
 export const healthTint: Record<Health, { fill: string; stroke: string; soft: string }> = {
-  calm: { fill: v('blue-500'), stroke: v('blue-900'), soft: v('blue-50') },
+  calm: { fill: '#2B0BD8', stroke: '#14075E', soft: '#EFECFF' },
   strained: { fill: v('yellow-500'), stroke: v('yellow-900'), soft: v('yellow-100') },
   critical: { fill: v('red-500'), stroke: v('red-800'), soft: v('red-100') },
 }
@@ -54,24 +54,33 @@ export const font = {
  * Outside Lumen on purpose; this is the only place these values live.
  */
 export const accent = {
-  violet: '#7C5CFF',
-  teal: '#14B8A6',
-  coral: '#FF6F7D',
-  saffron: '#F5A524',
-  orchid: '#C084FC',
-  sky: '#38BDF8',
-  rose: '#F472B6',
-  slate: '#64748B',
+  indigo: '#2B0BD8',
+  mint: '#1FC9A3',
+  violet: '#7B61FF',
+  cyan: '#00B4D8',
+  pink: '#FF5FA2',
+  amber: '#FFB020',
+  lavender: '#A99BFF',
+  teal: '#0E8F7E',
+} as const
+
+/** The "You Token to Me?" brand: electric indigo, mint and white. */
+export const brand = {
+  indigo: '#2B0BD8',
+  mint: '#5CEFCB',
+  mintDeep: '#1FC9A3',
+  night: '#14075E',
+  lilac: '#F4F2FF',
 } as const
 
 /** Team (department) colours. Teams are always named too. */
 export const teamPalette = [
+  accent.indigo,
+  accent.mint,
+  accent.pink,
+  accent.amber,
   accent.violet,
+  accent.cyan,
+  accent.lavender,
   accent.teal,
-  accent.coral,
-  accent.saffron,
-  accent.orchid,
-  accent.sky,
-  accent.rose,
-  accent.slate,
 ] as const

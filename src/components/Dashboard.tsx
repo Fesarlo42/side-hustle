@@ -11,6 +11,10 @@ import { Members } from '@/components/Members/Members'
 import { PledgeFlow } from '@/components/PledgeFlow/PledgeFlow'
 import { Quality } from '@/components/Quality/Quality'
 import { WorkCards } from '@/components/WorkCards/WorkCards'
+import { Section } from '@/components/ui/Section'
+import keepOn from '@/assets/brand/keep-on-token.png'
+import lookWhos from '@/assets/brand/look-whos-token.png'
+import nowWere from '@/assets/brand/now-were-token.png'
 import type { DataSource } from '@/data/source'
 import { useReducedMotionPref } from '@/hooks/useReducedMotionPref'
 import { useDash } from '@/store/store'
@@ -42,17 +46,24 @@ export function Dashboard({ source }: { source: DataSource }) {
         {/* Below the fold: the detail, as cards. */}
         <div className="sh-page" id="details">
           {/* Who is in the pool, and where their pledges go. */}
-          <div className="sh-split">
-            <Members />
-            <PledgeFlow />
-          </div>
+          <Section banner={lookWhos} alt="Look who’s Token">
+            <div className="sh-split">
+              <Members />
+              <PledgeFlow />
+            </div>
+          </Section>
           {/* What the agents are doing, left to right through the sections. */}
-          <WorkCards />
-          <Flow />
-          <div className="sh-two">
-            <Quality />
-            <Leaderboard />
-          </div>
+          <Section banner={nowWere} alt="Now we’re Token">
+            <WorkCards />
+          </Section>
+          {/* How well it flows. */}
+          <Section banner={keepOn} alt="Keep on Token">
+            <Flow />
+            <div className="sh-two">
+              <Quality />
+              <Leaderboard />
+            </div>
+          </Section>
           <div className="sh-two">
             <Insights />
             <ActivityLog />
