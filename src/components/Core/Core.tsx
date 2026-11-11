@@ -12,7 +12,7 @@
  * - wobble          ← an open "needs attention" insight
  * - faded dot       ← that member's task is orphaned
  */
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { breath, motion } from '@/motion'
 import { color, healthTint } from '@/theme'
 import type { Health } from '@/types'
@@ -20,6 +20,8 @@ import type { Health } from '@/types'
 export interface CoreMember {
   id: string
   name: string
+  /** Shown in the dot instead of initials when present. */
+  avatarUrl?: string
   ring: 'outer' | 'inner' | 'none'
   offline: boolean
   faded: boolean
@@ -48,11 +50,11 @@ export interface CoreProps {
   busyHeartbeatsPerMin?: number
 }
 
-const VIEW = 230
+const VIEW = 246
 const MEMBRANE_R = 108
-const INNER_RING = 146
-const OUTER_RING = 190
-const DOT_R = 15
+const INNER_RING = 152
+const OUTER_RING = 208
+const DOT_R = 24
 const MAX_PARTICLES = 60
 const PARTICLE_EVERY_S = 1.4
 const PARTICLE_LIFE_S = 2.4
@@ -180,7 +182,7 @@ interface View {
 }
 
 const goalOpacity = (m: CoreMember) =>
-  m.faded ? 0.2 : m.offline ? 0.35 : m.ring === 'none' ? 0.55 : 1
+  m.faded ? 0.3 : m.offline ? 0.55 : m.ring === 'none' ? 0.7 : 1
 
 function staticView(p: CoreProps): View {
   const slots = layout(p.members)
@@ -331,6 +333,7 @@ export function Core(props: CoreProps) {
     return () => cancelAnimationFrame(raf)
   }, [reducedMotion])
 
+  const uid = useId().replace(/:/g, '')
   const v = reducedMotion || !view ? staticView(props) : view
   const membraneR = MEMBRANE_R * (1 + 0.04 * v.beat)
   const nucleusR = (24 + 48 * clamp(v.nucleusLeft)) * (1 + 0.05 * v.beat)
@@ -348,6 +351,13 @@ export function Core(props: CoreProps) {
             <stop offset="0%" stopColor={tint.fill} stopOpacity={0.95} />
             <stop offset="100%" stopColor={tint.fill} stopOpacity={0.55} />
           </radialGradient>
+          {/* Each member group is translated, so one clip at the origin fits every photo. */}
+          <clipPath id={`${uid}-face`}>
+            <circle r={DOT_R - 2} />
+          </clipPath>
+          <filter id={`${uid}-grey`}>
+            <feColorMatrix type="saturate" values="0" />
+          </filter>
         </defs>
 
         {/* Orbit guides */}
@@ -446,18 +456,32 @@ export function Core(props: CoreProps) {
               opacity={r2(d.opacity)}
             >
               <title>{`${m.name}${m.offline ? ' · offline' : ''}${m.faded ? ' · task orphaned' : ''}`}</title>
+              <circle r={DOT_R} fill={m.offline ? color.mutedSubtle : color.surface} />
+              {m.avatarUrl ? (
+                <image
+                  href={m.avatarUrl}
+                  x={-(DOT_R - 2)}
+                  y={-(DOT_R - 2)}
+                  width={(DOT_R - 2) * 2}
+                  height={(DOT_R - 2) * 2}
+                  preserveAspectRatio="xMidYMid slice"
+                  clipPath={`url(#${uid}-face)`}
+                  filter={m.offline || m.faded ? `url(#${uid}-grey)` : undefined}
+                />
+              ) : (
+                <text y={6} textAnchor="middle" fontSize={16} fontWeight={700} fill={color.text}>
+                  {initials(m.name)}
+                </text>
+              )}
               <circle
                 r={DOT_R}
-                fill={m.offline ? color.mutedSubtle : color.surface}
+                fill="none"
                 stroke={
                   selected ? color.action : m.ring === 'inner' ? tint.stroke : color.borderStrong
                 }
-                strokeWidth={selected ? 3.5 : 2}
-                strokeDasharray={m.faded || m.offline ? '3 3' : undefined}
+                strokeWidth={selected ? 4 : m.ring === 'inner' ? 3 : 2}
+                strokeDasharray={m.faded || m.offline ? '4 4' : undefined}
               />
-              <text y={4} textAnchor="middle" fontSize={11} fontWeight={700} fill={color.text}>
-                {initials(m.name)}
-              </text>
             </g>
           )
         })}

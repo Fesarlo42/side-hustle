@@ -42,6 +42,15 @@ export function duration(ms: number): string {
   return h % 24 === 0 ? `${d} d` : `${d} d ${h % 24} h`
 }
 
+/** "just now", "12 min ago", "3 h ago": how long before `now` something happened. */
+export function ago(iso: string, now: number): string {
+  const ms = now - Date.parse(iso)
+  if (!Number.isFinite(ms)) return '—'
+  if (ms < 60_000) return 'just now'
+  const d = duration(ms)
+  return `${d.replace(/ \d+ min$/, '').replace(/ \d+ h$/, '')} ago`
+}
+
 export function firstName(name: string | undefined): string {
   return name?.split(' ')[0] ?? '—'
 }

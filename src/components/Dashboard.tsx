@@ -1,12 +1,11 @@
 'use client'
 import { useEffect } from 'react'
 import { ActivityLog } from '@/components/ActivityLog/ActivityLog'
-import { CorePanel } from '@/components/Core/CorePanel'
 import { DevBar } from '@/components/DevBar/DevBar'
 import { Flow } from '@/components/Flow/Flow'
 import { Header } from '@/components/Header/Header'
+import { Hero } from '@/components/Hero/Hero'
 import { Insights } from '@/components/Insights/Insights'
-import { KpiLeft, KpiRight } from '@/components/KpiStrip/KpiStrip'
 import { Leaderboard } from '@/components/Leaderboard/Leaderboard'
 import { Members } from '@/components/Members/Members'
 import { PledgeFlow } from '@/components/PledgeFlow/PledgeFlow'
@@ -33,28 +32,30 @@ export function Dashboard({ source }: { source: DataSource }) {
     )
 
   return (
-    <main className="sh-page">
+    <>
       <Header />
-      <div className="sh-top">
-        <KpiLeft />
-        <CorePanel />
-        <KpiRight />
-      </div>
-      <div className="sh-two">
-        <Members />
-        <WorkCards />
-      </div>
-      <Flow />
-      <div className="sh-two">
-        <PledgeFlow />
-        <Quality />
-      </div>
-      <div className="sh-two">
-        <Insights />
-        <Leaderboard />
-      </div>
-      <ActivityLog />
+      <main>
+        {/* Above the fold: the core and the key numbers. */}
+        <Hero />
+        {/* Below the fold: the detail, as cards. */}
+        <div className="sh-page" id="details">
+          <div className="sh-two">
+            <Members />
+            <WorkCards />
+          </div>
+          <Flow />
+          <div className="sh-two">
+            <PledgeFlow />
+            <Quality />
+          </div>
+          <div className="sh-two">
+            <Insights />
+            <Leaderboard />
+          </div>
+          <ActivityLog />
+        </div>
+      </main>
       <DevBar />
-    </main>
+    </>
   )
 }

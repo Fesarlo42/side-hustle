@@ -5,7 +5,17 @@ import { useNow } from '@/hooks/useNow'
 import { duration, shortDate } from '@/lib/format'
 import { nowOf } from '@/store/selectors'
 import { useDash } from '@/store/store'
-import { color } from '@/theme'
+
+/** The mark: a tiny core (membrane and nucleus), breathing slowly. */
+function Mark() {
+  return (
+    <svg className="sh-mark" viewBox="-20 -20 40 40" aria-hidden>
+      <circle r={17} className="sh-mark__ring" />
+      <circle r={11} className="sh-mark__membrane" />
+      <circle r={5} className="sh-mark__nucleus" />
+    </svg>
+  )
+}
 
 export function Header() {
   const week = useDash((s) => s.week)
@@ -26,68 +36,78 @@ export function Header() {
   })
   const ago = lastMessageAt ? Math.max(0, Math.round((wallNow - lastMessageAt) / 1000)) : undefined
   const live = connection === 'live' && ago !== undefined && ago < 10
+  const answered = week.memberCount > 0 ? week.answeredCount / week.memberCount : 0
 
   return (
-    <header
-      style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 16,
-      }}
-    >
-      <div>
-        <div style={{ fontSize: 30, fontWeight: 700, lineHeight: 1.1 }}>Side hustle</div>
-        <div className="sh-muted">No token left unused.</div>
-      </div>
-      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 20 }}>
-        <span>
-          <strong>Week {week.number}</strong> · resets {shortDate(week.resetAt)} ·{' '}
-          {/* Fixed width so the minute countdown never shifts the header. */}
-          <span className="sh-num" style={{ display: 'inline-block', minWidth: '7.5em' }}>
-            in {duration(resetIn)}
-          </span>
-        </span>
-        <span>
-          <strong className="sh-num">
-            {week.answeredCount} of {week.memberCount}
-          </strong>{' '}
-          answered · {simNow > deadline ? 'closed' : 'closes'} {deadlineDay}
-        </span>
-        {/* A steady label; the exact time of the last update is in the tooltip. */}
-        <span
-          role="status"
-          title={
-            lastMessageAt
-              ? `Last update ${new Date(lastMessageAt).toLocaleTimeString('en-GB')}`
-              : 'Waiting for data'
-          }
-          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, minWidth: 210 }}
-        >
+    <header className="sh-header">
+      <div className="sh-header__in">
+        <div className="sh-brand">
+          <Mark />
+          <div>
+            <div className="sh-brand__name">Side hustle</div>
+            <div className="sh-brand__tag">No token left unused.</div>
+          </div>
+        </div>
+
+        <div className="sh-facts">
+          <div className="sh-fact">
+            <span className="sh-fact__k">This week</span>
+            <span className="sh-fact__v">
+              <strong>Week {week.number}</strong>
+            </span>
+          </div>
+          <div className="sh-fact">
+            <span className="sh-fact__k">Resets {shortDate(week.resetAt)}</span>
+            {/* Fixed width so the minute countdown never shifts the header. */}
+            <span className="sh-fact__v sh-num" style={{ minWidth: '7.5em' }}>
+              in {duration(resetIn)}
+            </span>
+          </div>
+          <div className="sh-fact">
+            <span className="sh-fact__k">
+              Pledges · {simNow > deadline ? 'closed' : 'closes'} {deadlineDay}
+            </span>
+            <span className="sh-fact__v">
+              <strong className="sh-num">
+                {week.answeredCount} of {week.memberCount}
+              </strong>{' '}
+              answered
+            </span>
+            <span className="sh-fact__bar" aria-hidden>
+              <span style={{ width: `${Math.round(answered * 100)}%` }} />
+            </span>
+          </div>
+        </div>
+
+        <div className="sh-header__end">
+          {/* A steady label; the exact time of the last update is in the tooltip. */}
           <span
-            aria-hidden
-            style={{
-              width: 10,
-              height: 10,
-              borderRadius: '50%',
-              background: live ? color.success : color.muted,
-            }}
-          />
-          {live ? (
-            'Live'
-          ) : (
-            <Badge variant="neutral">
-              <Icon name="arrow-clockwise" size="sm" />{' '}
-              {connection === 'offline' ? 'Offline · reconnecting' : 'Reconnecting…'}
-            </Badge>
-          )}
-        </span>
-        <Toggle
-          label={`Reduced motion: ${reduced ? 'on' : 'off'}`}
-          checked={reduced}
-          onChange={({ checked }) => setReducedMotion(checked)}
-        />
+            role="status"
+            className={`sh-live${live ? ' is-live' : ''}`}
+            title={
+              lastMessageAt
+                ? `Last update ${new Date(lastMessageAt).toLocaleTimeString('en-GB')}`
+                : 'Waiting for data'
+            }
+          >
+            <span aria-hidden className="sh-live__dot" />
+            {live ? (
+              'Live'
+            ) : (
+              <Badge variant="neutral">
+                <Icon name="arrow-clockwise" size="sm" />{' '}
+                {connection === 'offline' ? 'Offline · reconnecting' : 'Reconnecting…'}
+              </Badge>
+            )}
+          </span>
+          <div className="sh-header__toggle">
+            <Toggle
+              label={`Reduced motion: ${reduced ? 'on' : 'off'}`}
+              checked={reduced}
+              onChange={({ checked }) => setReducedMotion(checked)}
+            />
+          </div>
+        </div>
       </div>
     </header>
   )

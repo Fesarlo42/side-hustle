@@ -28,6 +28,13 @@ export const color = {
   dangerSubtle: v('red-100'),
   muted: v('neutral-500'),
   mutedSubtle: v('neutral-100'),
+  /** Header band and hero wash. */
+  brand: v('blue-500'),
+  brandDeep: v('blue-900'),
+  brandNight: v('blue-950'),
+  onBrand: v('neutral-0'),
+  heroWash: v('blue-50'),
+  lavender: v('lavender-100'),
 } as const
 
 /** Core tint per health state: fill, stroke (strong, for contrast) and a soft halo. */
