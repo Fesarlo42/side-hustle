@@ -769,3 +769,48 @@ a {
 .sh-person {
   border-top: 3px solid var(--team);
 }
+
+/* ---------- People in one column, pledges beside ---------- */
+.sh-split {
+  display: grid;
+  grid-template-columns: minmax(340px, 1fr) minmax(0, 2fr);
+  gap: 20px;
+  align-items: stretch;
+}
+.sh-split > .sh-panel {
+  display: flex;
+  flex-direction: column;
+}
+.sh-people-col {
+  margin: 0;
+  padding: 0 4px 0 0;
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+.sh-people-col .sh-person {
+  grid-template-columns: auto 1fr auto;
+  justify-items: start;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  text-align: left;
+  border-top: 0;
+  border-left: 4px solid var(--team);
+}
+.sh-person__who {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.sh-person__nums {
+  display: grid;
+  gap: 1px;
+  justify-items: end;
+  text-align: right;
+}
+@media (max-width: 1180px) {
+  .sh-split {
+    grid-template-columns: 1fr;
+  }
+}

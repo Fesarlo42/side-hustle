@@ -41,18 +41,22 @@ export function Dashboard({ source }: { source: DataSource }) {
         <Hero />
         {/* Below the fold: the detail, as cards. */}
         <div className="sh-page" id="details">
-          <Members />
+          {/* Who is in the pool, and where their pledges go. */}
+          <div className="sh-split">
+            <Members />
+            <PledgeFlow />
+          </div>
+          {/* What the agents are doing, left to right through the sections. */}
           <WorkCards />
           <Flow />
           <div className="sh-two">
-            <PledgeFlow />
             <Quality />
+            <Leaderboard />
           </div>
           <div className="sh-two">
             <Insights />
-            <Leaderboard />
+            <ActivityLog />
           </div>
-          <ActivityLog />
         </div>
       </main>
       <DevBar />

@@ -130,23 +130,25 @@ function Person({
         opacity: member.status === 'offline' && !selected ? 0.75 : undefined,
       }}
     >
-      <PledgeRing m={member} />
-      <span style={{ fontWeight: 700, lineHeight: 1.2 }}>
-        {member.name}
-        {changed && (
-          <span
-            title={`Changed this week (was ${member.pledgePrevPct}%)`}
-            style={{ marginLeft: 4, color: color.action }}
-          >
-            ▲
-          </span>
-        )}
-      </span>
-      <span id={detailsId} style={{ display: 'grid', gap: 2, justifyItems: 'center' }}>
+      <PledgeRing m={member} size={52} />
+      <span className="sh-person__who">
+        <span style={{ fontWeight: 700, lineHeight: 1.2 }}>
+          {member.name}
+          {changed && (
+            <span
+              title={`Changed this week (was ${member.pledgePrevPct}%)`}
+              style={{ marginLeft: 4, color: color.action }}
+            >
+              ▲
+            </span>
+          )}
+        </span>
         <span className="sh-team" style={{ fontSize: 13 }}>
           {member.team}
         </span>
-        <strong className="sh-num" style={{ fontSize: 18 }}>
+      </span>
+      <span id={detailsId} className="sh-person__nums">
+        <strong className="sh-num" style={{ fontSize: 17 }}>
           {fmt(leftPct(member))} left
         </strong>
         <span className="sh-muted sh-num" style={{ fontSize: 13 }}>
@@ -208,7 +210,7 @@ export function Members() {
           ))}
         </ul>
       </div>
-      <ul aria-label="Members of the pool" className="sh-people">
+      <ul aria-label="Members of the pool" className="sh-people-col sh-fill">
         {members.map((mm) => (
           <m.li
             key={mm.id}

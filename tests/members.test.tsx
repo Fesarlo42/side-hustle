@@ -106,6 +106,12 @@ describe('Members', () => {
     )
   })
 
+  it('lists people in a single column', () => {
+    seed()
+    render(<Members />)
+    expect(screen.getByRole('list', { name: 'Members of the pool' })).toHaveClass('sh-people-col')
+  })
+
   it('marks a pledge changed mid-week', () => {
     seed()
     render(<Members />)

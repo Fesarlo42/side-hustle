@@ -26,18 +26,20 @@ describe('Dashboard', () => {
     const headings = screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)
     expect(headings).toEqual([
       'Members (15)',
+      'Where pledges go',
       'Work in progress',
       'Flow',
-      'Where pledges go',
       'Quality',
-      'Insights',
       'Leaderboard',
+      'Insights',
       'Activity log',
     ])
     expect(screen.getByText('Unused at reset')).toBeInTheDocument()
-    // Members and work each get the full width.
-    expect(document.getElementById('work')?.parentElement).not.toHaveClass('sh-two')
-    expect(document.getElementById('members')?.parentElement).not.toHaveClass('sh-two')
+    // People in one column with where their pledges go beside them; the task board below, full width.
+    const row = document.getElementById('members')?.parentElement
+    expect(row).toHaveClass('sh-split')
+    expect(row).toContainElement(document.getElementById('pledges'))
+    expect(document.getElementById('work')?.parentElement).not.toHaveClass('sh-split')
     expect(screen.getByText(/^All calm./)).toBeInTheDocument()
   })
 
