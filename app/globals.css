@@ -697,3 +697,17 @@ a {
   );
   transition: background 0.6s ease-out;
 }
+
+.sh-more {
+  margin-top: 10px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--lumen-color-border-default);
+  background: var(--lumen-color-surface-default);
+  color: var(--lumen-color-action-primary);
+  font-weight: 600;
+  cursor: pointer;
+}
+.sh-more:hover {
+  border-color: var(--lumen-color-border-strong);
+}

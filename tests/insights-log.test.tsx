@@ -165,6 +165,21 @@ describe('Activity log', () => {
     expect(screen.getByRole('listitem')).toHaveTextContent('Marta answered')
   })
 
+  it('starts folded to the latest events and expands on request', () => {
+    const many = Array.from({ length: 12 }, (_, i) =>
+      ev({ id: `m${i}`, type: 'task.claimed', text: `Event ${i}`, at: ago(12 - i) }),
+    )
+    seedStore(snapshot({ pulse: { ...snapshot().pulse, at: NOW }, events: many }))
+    render(<ActivityLog />)
+    expect(screen.getAllByRole('listitem')).toHaveLength(6)
+    expect(screen.getAllByRole('listitem')[0]).toHaveTextContent('Event 11')
+    const toggle = screen.getByRole('button', { name: 'Show all 12 events' })
+    expect(toggle).toHaveAttribute('aria-expanded', 'false')
+    fireEvent.click(toggle)
+    expect(screen.getAllByRole('listitem')).toHaveLength(12)
+    expect(screen.getByRole('button', { name: 'Show fewer' })).toHaveAttribute('aria-expanded', 'true')
+  })
+
   it('links rows to the person', () => {
     seed()
     render(<ActivityLog />)

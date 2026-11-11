@@ -54,12 +54,15 @@ const ICON: Partial<Record<EventType, IconName>> = {
 }
 
 const SHOWN = 80
+/** Folded view: just the latest few; the rest is one click away. */
+const FOLDED = 6
 
 /** Every event, live. The single source of truth the other panels link back to. */
 export function ActivityLog() {
   const data = useData()
   const select = useDash((s) => s.selectMember)
   const [filter, setFilter] = useState<Filter>('all')
+  const [open, setOpen] = useState(false)
   const rows = useMemo(
     () =>
       data.events
@@ -97,7 +100,7 @@ export function ActivityLog() {
           aria-label="Events, newest first"
           style={{ margin: 0, padding: 0, maxHeight: 420, overflowY: 'auto', display: 'grid' }}
         >
-          {rows.map((e) => {
+          {(open ? rows : rows.slice(0, FOLDED)).map((e) => {
             const people = e.related
               .filter((r) => r.type === 'member')
               .map((r) => data.members[r.id])
@@ -154,6 +157,11 @@ export function ActivityLog() {
             )
           })}
         </ol>
+      )}
+      {rows.length > FOLDED && (
+        <button className="sh-more" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
+          {open ? 'Show fewer' : `Show all ${rows.length} events`}
+        </button>
       )}
     </Panel>
   )
