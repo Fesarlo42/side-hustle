@@ -2,7 +2,7 @@
 
 A read-only, real-time page that shows who pledged spare Claude usage, what the agents are doing with it, where it goes and what needs attention. A living core in the middle shows the system's pulse.
 
-Built for the Athens hackathon 2026. By default it shows the live [Side Hustle project](https://app.asana.com/1/13327221380952/project/1220379119011503) in Asana (see [The Asana source](#the-asana-source)). A seeded mock with a scripted 3-minute demo is still there for rehearsals.
+Built for the Athens hackathon 2026. It shows the live [Side Hustle project](https://app.asana.com/1/13327221380952/project/1220379119011503) in Asana, as written by the agents of the [side hustle harness](https://github.com/jacogaz/side-hustle-harness) (see [The Asana source](#the-asana-source)). A seeded mock with a scripted 3-minute demo is there for rehearsals.
 
 ## Run it
 
@@ -29,27 +29,45 @@ With the mock, the page plays the scripted 3-minute demo at 10× (see below), an
 
 | Command | What it does |
 | --- | --- |
-| `npm run dev` | Dev server |
+| `npm run dev:live` | Dev server on live Asana (token from the keychain) |
+| `npm run dev` | Dev server on Asana; without a token it reads `data/asana-export.json` |
+| `npm run dev:mock` | Dev server on the mock, with the scripted demo |
 | `npm test` | Unit and component tests (Vitest, Testing Library) |
 | `npm run test:e2e` | Playwright smoke test (starts its own server on the mock, port 3100): runs the demo for 30 s and saves screenshots at 1280×720 and 1920×1080 to `e2e/screenshots/` |
 | `npm run lint` / `npm run typecheck` | ESLint / TypeScript |
 | `npm run build` | Production build |
 
+**Good to know**
+
+- Next.js runs one dev server per project folder. Stop yours before `npm run test:e2e`, which starts its own on the mock.
+- If the page keeps reloading itself in dev, the `.next` cache is stale (it happens after switching sources or a second dev server tried to start): stop the server, `rm -rf .next`, start again.
+
 ## How it fits together
 
 ```
-Mock engine (server) ──► /api/state  (snapshot)  ──► store (one reducer) ──► every panel
-                     └─► /api/stream (SSE: events + pulse every 2 s)
-                         /api/demo   (demo controls only)
+Asana (or the mock) ──► server source ──► /api/state  (snapshot)  ──► store (one reducer) ──► every panel
+                                     └─► /api/stream (SSE: events + pulse every 2 s)
+                                         /api/demo   (mock only: demo controls)
 ```
 
 - **`src/types.ts`**: the data contract (members, projects, agents, tasks, insights, events, pulse, usage, week). Differences from the harness spec are in `docs/data-contract-diff.md`.
 - **`src/data/mock/`**: the seeded mock. `cast.ts` holds 15 fictional members, 4 teams and 6 projects; `engine.ts` plays a believable week plus the scripted demo; `text.ts` holds the voice for log lines and the status line.
-- **`src/server/`**: the hub that runs the engine on a timer, and `getServerSource()`, the one place the data source is chosen.
+- **`src/server/`**: `source.ts` with `getServerSource()`, the one place the data source is chosen (`SIDE_HUSTLE_SOURCE`: `asana` by default, or `mock`); `asana/` reads Asana and turns it into the data contract; `hub.ts` runs the mock engine on a timer.
 - **`src/store/`**: `reducer.ts` (snapshot plus stream messages, pure) and `selectors.ts` (every derived number: left, flow, quality, leaderboard, where pledges go, core inputs). Nothing derived is stored.
-- **`src/components/`**: the core (custom SVG) and the panels. Panels only read the store.
+- **`src/components/`**: the hero (core, key numbers, live events) and the panels. Panels only read the store.
+- **`src/lib/teams.ts`**: one colour per team, stable by name.
 - **`src/config/health.ts`**: calm / strained / critical rules, tunable before the demo.
-- **`src/theme.ts`**: the only place colours live; every value maps a Lumen token. **`src/motion.ts`**: our motion tokens.
+- **`src/theme.ts`**: the only place colours live: Lumen tokens for the base, plus a small jewel-toned accent palette (outside Lumen on purpose) for teams and task sections. **`src/motion.ts`**: our motion tokens.
+
+### What's on the page
+
+1. **Header bar:** week, reset countdown, pledge answers, live indicator, reduced-motion toggle.
+2. **Hero:** the living core: an aura that breathes in the health colour, a radar sweep, people as dots (with their Asana photos and a ring in their team colour), and particles with trails carrying pledge from picker to owner. Key numbers on either side, live event pop-ups, the status line and a "Latest" ticker.
+3. **People and where their pledges go:** one column of people (pledge ring, team, left, used, status) beside the usage per project or team and the picker → owner flow. Clicking a person highlights their tasks and flows everywhere.
+4. **Work in progress:** a board, left to right through Doing, To Review, QA Review, Needs Info and Done.
+5. **Flow:** counts and average time per section, bottlenecks, stalled and orphaned tasks.
+6. **Quality and leaderboard:** first-pass approval, rejections, reviewer failures, over-budget tasks, success per model; top 5 publishers, pickers, completers and pledges.
+7. **Insights and activity log:** what the agents noticed and what they're doing about it; every event, folded to the latest few.
 
 ### The mock and the demo script
 
@@ -70,22 +88,18 @@ The engine is deterministic: the same seed (`SIDE_HUSTLE_SEED`, default 46) play
 
 `tests/engine.test.ts` checks that every moment happens on time.
 
-## Plugging in real data
+## Data sources
 
-The browser talks to `/api/state` and `/api/stream` only, so the swap happens on the server:
+The browser talks to `/api/state` and `/api/stream` only, so sources are swapped on the server. To add one (Slack for departments, say):
 
 1. Implement `ServerSource` (`src/server/source.ts`): `snapshot()` returns a `Snapshot`, `subscribe()` emits `StreamMessage`s (one per event, with the changed entities, plus a `pulse` every 2 s, including the ready-made status line).
-2. Feed it from the harness usage reports, Slack (members, pledges) and Asana (tasks, sections).
-3. Return it from `getServerSource()` for a new `SIDE_HUSTLE_SOURCE` value. Leave out `command()`: the demo bar then disappears.
-
-The mock cast in `src/data/mock/cast.ts` is fictional and is replaced by real people the same way.
+2. Return it from `getServerSource()` for a new `SIDE_HUSTLE_SOURCE` value. Leave out `command()`: the demo bar then disappears.
 
 ### The Asana source
 
-This is the default source (`SIDE_HUSTLE_SOURCE=asana`): it reads the live [Side Hustle project](https://app.asana.com/1/13327221380952/project/1220379119011503). It needs an Asana personal access token (Asana → Settings → Apps → Developer apps) that can see the project:
+This is the default source (`SIDE_HUSTLE_SOURCE=asana`): it reads the live [Side Hustle project](https://app.asana.com/1/13327221380952/project/1220379119011503). It needs an Asana personal access token that can see the project. Create it in the Developer console (Asana → Settings → Apps → Developer apps → **Personal access tokens → Create new token**; not "Create new app"), store it in the keychain as shown in [Run it](#run-it), and start with `npm run dev:live`. On other systems, put it in `.env.local` (git-ignored) instead:
 
 ```bash
-# .env.local (git-ignored)
 ASANA_TOKEN=<personal access token>
 ```
 
@@ -105,13 +119,17 @@ With a token, the server reads Asana every 20 s (`SIDE_HUSTLE_ASANA_POLL_MS`), o
 | Pledge used, where pledges go | This week's claim records (reserved budgets), as in the harness |
 | Stalled, orphaned | `Side hustle stalled` comments; no heartbeat for 2 h in Doing or To Review |
 
-Asana doesn't hold teams or a check-in deadline, so everyone is in team "iubenda" and the week closes at the reset. A task's project is the repo named in its "Target resource", or "Side Hustle". People without a pledge this week show as offline with 0%. If Asana stops answering, the dashboard keeps the last data and shows a service insight until it's back.
+Asana doesn't hold teams or a check-in deadline, so everyone is in team "iubenda" (one team colour) and the week closes at the reset; departments need another source, such as Slack profiles. A task's project is the repo named in its "Target resource", or "Side Hustle". People without a pledge this week show as offline with 0%. If Asana stops answering, the dashboard keeps the last data and shows a service insight until it's back.
 
 ## Rules the page keeps
 
 - **Read-only.** The only controls are the demo bar and view settings (sort, filters, reduced motion).
 - **Minimum information.** Tasks show their title, project and Asana link. People show name, team, pledge, pledge used and left, and status. Nobody's own weekly usage, tokens or cost is ever shown.
 - **Everything is a % of a weekly limit.** Task budgets: S = 2%, M = 5%, L = 10%. Totals are in seat-weeks (100% = one full weekly limit).
-- **Reduced motion** (OS setting or the header toggle): the core is still and labelled with its state, and numbers update without counting up.
+- **Reduced motion** (OS setting or the header toggle): the core is still and labelled with its state, numbers update without counting up, and every CSS animation stops.
 - **Readable on a projector:** 1280×720 and up, 16 px body text, key numbers at 28 px or more, and colour never carries meaning alone.
 - **Light theme only.** Lumen follows the OS into dark mode, so `<html data-theme="light">` pins it.
+
+## Tests
+
+Built test-first: every component and selector has Vitest tests (Testing Library + jsdom for components), and `tests/engine.test.ts` replays the whole scripted demo. `npm test` runs all of them; `npm run test:e2e` adds the Playwright smoke test in a real browser.
