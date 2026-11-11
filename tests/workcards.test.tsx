@@ -111,11 +111,13 @@ describe('Work in progress', () => {
     ])
   })
 
-  it('groups cards under their section with a count', () => {
+  it('lays sections out side by side, all five always visible', () => {
     seed()
     render(<WorkCards />)
     const groups = screen.getAllByRole('group').map((g) => g.getAttribute('aria-label'))
-    expect(groups).toEqual(['Doing: 2', 'To Review: 1', 'Done: 1'])
+    expect(groups).toEqual(['Doing: 2', 'To Review: 1', 'QA Review: 0', 'Needs Info: 0', 'Done: 1'])
+    expect(screen.getByTestId('work-board')).toHaveClass('sh-kanban')
+    expect(within(screen.getByRole('group', { name: 'QA Review: 0' })).getByText('Nothing here')).toBeInTheDocument()
     expect(within(screen.getByRole('group', { name: 'Doing: 2' })).getAllByRole('article')).toHaveLength(2)
   })
 
@@ -175,10 +177,10 @@ describe('Work in progress', () => {
     expect(card('Split checkout summary')).toHaveClass('sh-dim')
   })
 
-  it('scrolls inside its panel so it matches the members list next to it', () => {
+  it('scrolls long columns on their own', () => {
     seed()
     render(<WorkCards />)
-    expect(screen.getByTestId('work-scroll')).toHaveClass('sh-fill')
+    for (const g of screen.getAllByRole('group')) expect(g.querySelector('.sh-lane-body')).not.toBeNull()
   })
 
   it('says so when nothing is running', () => {

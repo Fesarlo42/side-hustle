@@ -35,6 +35,9 @@ describe('Dashboard', () => {
       'Activity log',
     ])
     expect(screen.getByText('Unused at reset')).toBeInTheDocument()
+    // Members and work each get the full width.
+    expect(document.getElementById('work')?.parentElement).not.toHaveClass('sh-two')
+    expect(document.getElementById('members')?.parentElement).not.toHaveClass('sh-two')
     expect(screen.getByText(/^All calm./)).toBeInTheDocument()
   })
 

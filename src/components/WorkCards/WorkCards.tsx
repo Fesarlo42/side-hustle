@@ -132,7 +132,7 @@ export function WorkCards() {
   const groups = GROUPS.map((section) => ({
     section,
     tasks: cards.filter((t) => t.section === section),
-  })).filter((g) => g.tasks.length > 0)
+  }))
 
   return (
     <Panel
@@ -145,27 +145,19 @@ export function WorkCards() {
           Nothing in progress right now. New tasks show up here as soon as an agent claims them.
         </Empty>
       ) : (
-        <div
-          data-testid="work-scroll"
-          className="sh-fill"
-          style={{ display: 'grid', gap: 14, alignContent: 'start', paddingRight: 4 }}
-        >
+        <div data-testid="work-board" className="sh-kanban">
           {groups.map(({ section, tasks }) => (
             <section
               key={section}
               role="group"
               aria-label={`${SECTION_LABEL[section]}: ${tasks.length}`}
+              className="sh-lane-col"
             >
               <h3 className="sh-lane" style={{ ['--accent' as string]: ACCENT[section] }}>
                 {SECTION_LABEL[section]} <span className="sh-num">{tasks.length}</span>
               </h3>
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-                  gap: 10,
-                }}
-              >
+              <div className="sh-lane-body">
+                {tasks.length === 0 && <p className="sh-muted sh-lane-empty">Nothing here</p>}
                 <AnimatePresence initial={false} mode="popLayout">
                   {tasks.map((t) => (
                     <m.div

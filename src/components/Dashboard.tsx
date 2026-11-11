@@ -41,10 +41,8 @@ export function Dashboard({ source }: { source: DataSource }) {
         <Hero />
         {/* Below the fold: the detail, as cards. */}
         <div className="sh-page" id="details">
-          <div className="sh-two">
-            <Members />
-            <WorkCards />
-          </div>
+          <Members />
+          <WorkCards />
           <Flow />
           <div className="sh-two">
             <PledgeFlow />
