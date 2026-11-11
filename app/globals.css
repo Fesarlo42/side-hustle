@@ -529,12 +529,12 @@ a {
 }
 .sh-person:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 24px -14px rgb(59 41 255 / 45%);
+  box-shadow: 0 10px 24px -14px rgb(43 11 216 / 45%);
   border-color: var(--lumen-color-border-default);
 }
 .sh-person[data-selected='true'] {
   border-color: var(--lumen-color-action-primary);
-  box-shadow: 0 0 0 3px rgb(59 41 255 / 18%);
+  box-shadow: 0 0 0 3px rgb(43 11 216 / 18%);
 }
 .sh-ring-working {
   animation: sh-ring 2.4s ease-in-out infinite;
@@ -543,10 +543,10 @@ a {
 @keyframes sh-ring {
   0%,
   100% {
-    filter: drop-shadow(0 0 0 rgb(59 41 255 / 0%));
+    filter: drop-shadow(0 0 0 rgb(43 11 216 / 0%));
   }
   50% {
-    filter: drop-shadow(0 0 8px rgb(59 41 255 / 55%));
+    filter: drop-shadow(0 0 8px rgb(43 11 216 / 55%));
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -600,7 +600,7 @@ a {
 }
 .sh-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 14px 28px -16px rgb(59 41 255 / 45%);
+  box-shadow: 0 14px 28px -16px rgb(43 11 216 / 45%);
 }
 .sh-chip {
   white-space: nowrap;
@@ -831,6 +831,22 @@ a {
   --sh-lilac: #f4f2ff;
   /* Lumen's primary action becomes the brand indigo (buttons, toggles, segments). */
   --lumen-color-action-primary: var(--sh-indigo);
+  /* Lumen's whole blue scale, retuned around the banner indigo, so every blue matches. */
+  --lumen-blue-25: #f5f3ff;
+  --lumen-blue-50: #eeeaff;
+  --lumen-blue-100: #d6ccff;
+  --lumen-blue-500: #2b0bd8;
+  --lumen-blue-600: #2309b4;
+  --lumen-blue-900: #180780;
+  --lumen-blue-950: #10055a;
+  /* Lumen tokens that hard-code the old blue. */
+  --lumen-button-shadow: 0 1px 0 0 rgb(43 11 216 / 5%);
+  --lumen-control-shadow: 0 1px 0 0 rgb(43 11 216 / 5%);
+  --lumen-field-shadow: 0 1px 0 0 rgb(43 11 216 / 5%);
+  --lumen-color-button-focus-ring-primary: rgb(43 11 216 / 12%);
+  --lumen-color-control-focus-ring: rgb(43 11 216 / 12%);
+  --lumen-gradient-text: linear-gradient(108deg, #2b0bd8 12%, #1fc9a3 60%);
+  --lumen-gradient-background: radial-gradient(ellipse 120% 150% at 40% 45%, #2b0bd8 0%, #2309b4 30%, #180780 60%, #10055a 100%);
 }
 body {
   background:
@@ -850,6 +866,8 @@ body {
   height: 52px;
   width: auto;
   display: block;
+  /* The logo's own indigo is a hair off the banners'; "lighten" melts its box into the bar. */
+  mix-blend-mode: lighten;
 }
 .sh-brand__tag {
   color: var(--sh-mint);

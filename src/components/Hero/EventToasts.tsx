@@ -32,7 +32,7 @@ const pillStyle = {
   borderRadius: 999,
   background: color.surface,
   border: `1px solid ${color.border}`,
-  boxShadow: '0 10px 30px -18px rgb(59 41 255 / 45%)',
+  boxShadow: '0 10px 30px -18px rgb(43 11 216 / 45%)',
   fontSize: 15,
   lineHeight: 1.3,
 } as const
