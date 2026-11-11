@@ -814,3 +814,7 @@ a {
     grid-template-columns: 1fr;
   }
 }
+/* Show about eight people before the column scrolls. */
+.sh-split .sh-fill {
+  min-height: 600px;
+}
