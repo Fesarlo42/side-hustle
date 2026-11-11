@@ -7,6 +7,7 @@
  * needs no changes.
  */
 import type { DemoCommand, Snapshot, StreamMessage } from '@/types'
+import { getAsanaHub } from './asana/hub'
 import { getMockHub } from './hub'
 
 export interface ServerSource {
@@ -21,6 +22,8 @@ export function getServerSource(): ServerSource {
   switch (kind) {
     case 'mock':
       return getMockHub()
+    case 'asana':
+      return getAsanaHub()
     default:
       throw new Error(`Unknown SIDE_HUSTLE_SOURCE "${kind}"`)
   }

@@ -13,3 +13,6 @@ next-env.d.ts
 # Internal planning docs (kept local)
 side-hustle-dashboard-spec.md
 build-prompt.md
+
+# Asana export written by Claude (people and task data)
+/data/

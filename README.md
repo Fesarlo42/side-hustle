@@ -70,6 +70,34 @@ The browser talks to `/api/state` and `/api/stream` only, so the swap happens on
 
 The mock cast in `src/data/mock/cast.ts` is fictional and is replaced by real people the same way.
 
+### The Asana source
+
+`SIDE_HUSTLE_SOURCE=asana` reads the live [Side Hustle project](https://app.asana.com/1/13327221380952/project/1220379119011503) instead of the mock. It needs an Asana personal access token (Asana → Settings → Apps → Developer apps) that can see the project:
+
+```bash
+# .env.local (git-ignored)
+SIDE_HUSTLE_SOURCE=asana
+ASANA_TOKEN=<personal access token>
+```
+
+**No token?** Leave `ASANA_TOKEN` out and the server reads an export instead: `data/asana-export.json` (git-ignored; another path via `SIDE_HUSTLE_ASANA_FILE`). It has the shape the API returns (`exportedAt`, `project`, `tasks`, and `stories` per task gid), so anyone with Asana access through Claude's Asana connector can ask Claude to write it. The server picks up a new export within 5 s and shows how old it is once it's more than 15 minutes old.
+
+With a token, the server reads Asana every 20 s (`SIDE_HUSTLE_ASANA_POLL_MS`), only fetching comments again for tasks that changed, and streams what's new. It is read-only. It reads what the harness skills write (`config/global.yaml` and `templates/task-description.md` in jacogaz/side-hustle-harness), the same way the harness's dashboard skill does:
+
+| Dashboard | Comes from |
+| --- | --- |
+| Tasks, sections, time per section | The project's tasks and their section moves |
+| Owner | The task's creator |
+| Picker, hand-over | `Side hustle claim:` and `Side hustle released:` comments |
+| Size, budget, heartbeat | The Estimate, Budget (a fraction) and Last heartbeat fields |
+| Reviews, attempts, failed checks | `Side hustle review: PASS/FAIL` comments |
+| Task usage and model | `Side hustle usage:` comments (estimates), 0 until the first report |
+| Pledges | `Side hustle pledge:` comments on the ledger task, this ISO week only |
+| Pledge used, where pledges go | This week's claim records (reserved budgets), as in the harness |
+| Stalled, orphaned | `Side hustle stalled` comments; no heartbeat for 2 h in Doing or To Review |
+
+Asana doesn't hold teams or a check-in deadline, so everyone is in team "iubenda" and the week closes at the reset. A task's project is the repo named in its "Target resource", or "Side Hustle". People without a pledge this week show as offline with 0%. If Asana stops answering, the dashboard keeps the last data and shows a service insight until it's back.
+
 ## Rules the page keeps
 
 - **Read-only.** The only controls are the demo bar and view settings (sort, filters, reduced motion).
