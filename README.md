@@ -90,7 +90,7 @@ The engine is deterministic: the same seed (`SIDE_HUSTLE_SEED`, default 46) play
 
 ## Data sources
 
-The browser talks to `/api/state` and `/api/stream` only, so sources are swapped on the server. To add one (Slack for departments, say):
+The browser talks to `/api/state` and `/api/stream` only, so sources are swapped on the server. To add one:
 
 1. Implement `ServerSource` (`src/server/source.ts`): `snapshot()` returns a `Snapshot`, `subscribe()` emits `StreamMessage`s (one per event, with the changed entities, plus a `pulse` every 2 s, including the ready-made status line).
 2. Return it from `getServerSource()` for a new `SIDE_HUSTLE_SOURCE` value. Leave out `command()`: the demo bar then disappears.
@@ -119,7 +119,13 @@ With a token, the server reads Asana every 20 s (`SIDE_HUSTLE_ASANA_POLL_MS`), o
 | Pledge used, where pledges go | This week's claim records (reserved budgets), as in the harness |
 | Stalled, orphaned | `Side hustle stalled` comments; no heartbeat for 2 h in Doing or To Review |
 
-Asana doesn't hold teams or a check-in deadline, so everyone is in team "iubenda" (one team colour) and the week closes at the reset; departments need another source, such as Slack profiles. A task's project is the repo named in its "Target resource", or "Side Hustle". People without a pledge this week show as offline with 0%. If Asana stops answering, the dashboard keeps the last data and shows a service insight until it's back.
+Asana doesn't hold departments or a check-in deadline. The week closes at the reset, and departments come from `data/teams.json` (git-ignored, because it holds colleagues' names), a name → department map:
+
+```json
+{ "Fernanda Gomes": "Engineering", "Aert Hulsebos": "Product" }
+```
+
+Names are matched ignoring case and accents; anyone not listed is in "iubenda". Edit it by hand, or ask Claude to rebuild it from Slack profile titles. The server reads it on every poll (`SIDE_HUSTLE_TEAMS_FILE` for another path). A task's project is the repo named in its "Target resource", or "Side Hustle". People without a pledge this week show as offline with 0%. If Asana stops answering, the dashboard keeps the last data and shows a service insight until it's back.
 
 ## Rules the page keeps
 
