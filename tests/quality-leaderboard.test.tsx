@@ -73,6 +73,12 @@ describe('Quality', () => {
     expect(screen.getByText('Sent back to Next').parentElement).toHaveTextContent('1')
   })
 
+  it('draws first-pass approval as a donut', () => {
+    seed()
+    render(<Quality />)
+    expect(screen.getByRole('meter', { name: 'First-pass approval: 75%' })).toBeInTheDocument()
+  })
+
   it('shows reviewer failures by check', () => {
     seed()
     render(<Quality />)
@@ -113,5 +119,13 @@ describe('Leaderboard', () => {
     expect(first('Picked up')).toHaveTextContent('Ana Silva4')
     expect(first('Completed')).toHaveTextContent('Ana Silva3')
     expect(first('Biggest pledges')).toHaveTextContent('Ana Silva30%')
+  })
+
+  it('ranks the top three with medals and shows relative bars', () => {
+    seed()
+    render(<Leaderboard />)
+    const items = within(screen.getByRole('list', { name: 'Picked up' })).getAllByRole('listitem')
+    expect(within(items[0] as HTMLElement).getByLabelText('Rank 1')).toBeInTheDocument()
+    expect(within(items[0] as HTMLElement).getByRole('meter')).toHaveAttribute('aria-valuenow', '4')
   })
 })

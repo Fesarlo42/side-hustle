@@ -3,6 +3,7 @@ import { useMemo } from 'react'
 import { Bar, Panel } from '@/components/ui/ui'
 import { quality } from '@/store/selectors'
 import { useData } from '@/store/store'
+import { color } from '@/theme'
 import type { ReviewCheck, TaskSize } from '@/types'
 
 const CHECKS: { check: ReviewCheck; label: string }[] = [
@@ -14,6 +15,46 @@ const CHECKS: { check: ReviewCheck; label: string }[] = [
 const SIZES: TaskSize[] = ['S', 'M', 'L']
 const BUDGET: Record<TaskSize, string> = { S: '2%', M: '5%', L: '10%' }
 const pc = (r: number) => `${Math.round(r * 100)}%`
+
+/** A ring that fills with the share (0–1). */
+function Donut({ value, label, size = 64 }: { value: number; label: string; size?: number }) {
+  const stroke = 9
+  const r = (size - stroke) / 2
+  const c = 2 * Math.PI * r
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      role="meter"
+      aria-label={label}
+      aria-valuenow={Math.round(value * 100)}
+      aria-valuemin={0}
+      aria-valuemax={100}
+    >
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={r}
+        fill="none"
+        stroke={color.mutedSubtle}
+        strokeWidth={stroke}
+      />
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={r}
+        fill="none"
+        stroke={color.success}
+        strokeWidth={stroke}
+        strokeLinecap="round"
+        strokeDasharray={`${c * Math.min(1, Math.max(0, value))} ${c}`}
+        transform={`rotate(-90 ${size / 2} ${size / 2})`}
+        className="sh-donut-arc"
+      />
+    </svg>
+  )
+}
 
 const row = {
   listStyle: 'none',
@@ -33,7 +74,13 @@ export function Quality() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
         <div>
           <div className="sh-muted">First-pass approval</div>
-          <div className="sh-big">{pc(q.firstPassApproval)}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <Donut
+              value={q.firstPassApproval}
+              label={`First-pass approval: ${pc(q.firstPassApproval)}`}
+            />
+            <div className="sh-big">{pc(q.firstPassApproval)}</div>
+          </div>
           <div className="sh-muted" style={{ fontSize: 14 }}>
             {q.doneCount - Math.round(q.doneCount * (1 - q.firstPassApproval))} of {q.doneCount}{' '}
             approved without being sent back

@@ -13,19 +13,31 @@ function List({ label, items, unit }: { label: string; items: Ranked[]; unit?: s
         <Empty>No one yet.</Empty>
       ) : (
         <ol aria-label={label} style={{ margin: 0, padding: 0, display: 'grid', gap: 6 }}>
-          {items.map((r) => {
+          {items.map((r, i) => {
             const m = data.members[r.memberId]
+            const top = items[0]?.value ?? 1
             return (
-              <li
-                key={r.memberId}
-                style={{ listStyle: 'none', display: 'flex', alignItems: 'center', gap: 8 }}
-              >
-                <Avatar member={m} size={26} />
-                <span style={{ flex: 1, minWidth: 0 }}>{m?.name ?? r.memberId}</span>
-                <strong className="sh-num">
-                  {r.value}
-                  {unit ?? ''}
-                </strong>
+              <li key={r.memberId} style={{ listStyle: 'none', display: 'grid', gap: 3 }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span aria-label={`Rank ${i + 1}`} className={`sh-rank sh-rank-${i + 1}`}>
+                    {i + 1}
+                  </span>
+                  <Avatar member={m} size={26} />
+                  <span style={{ flex: 1, minWidth: 0 }}>{m?.name ?? r.memberId}</span>
+                  <strong className="sh-num">
+                    {r.value}
+                    {unit ?? ''}
+                  </strong>
+                </span>
+                <span
+                  role="meter"
+                  aria-label={`${m?.name ?? r.memberId}: ${r.value}${unit ?? ''}`}
+                  aria-valuenow={r.value}
+                  aria-valuemin={0}
+                  aria-valuemax={top}
+                  className="sh-rank-bar"
+                  style={{ ['--w' as string]: `${(r.value / Math.max(1, top)) * 100}%` }}
+                />
               </li>
             )
           })}

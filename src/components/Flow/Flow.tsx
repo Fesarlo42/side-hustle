@@ -1,6 +1,7 @@
 'use client'
 import { Badge, Icon } from '@iubenda/lumen-next'
 import { useMemo } from 'react'
+import { CountUp } from '@/components/ui/CountUp'
 import { Empty, Panel } from '@/components/ui/ui'
 import { SECTION_LABEL } from '@/data/mock/text'
 import { duration, firstName } from '@/lib/format'
@@ -22,11 +23,14 @@ function Column({
   count,
   avg,
   bottleneck,
+  link = false,
 }: {
   section: Section
   count: number
   avg?: number
   bottleneck: boolean
+  /** Draw a moving connector to the next stage. */
+  link?: boolean
 }) {
   return (
     <li
@@ -40,10 +44,14 @@ function Column({
         display: 'grid',
         gap: 2,
         minWidth: 0,
+        position: 'relative',
       }}
     >
+      {link && <span className="sh-flow-link" aria-hidden />}
       <span style={{ fontWeight: 600 }}>{SECTION_LABEL[section]}</span>
-      <span className="sh-big">{count}</span>
+      <span className="sh-big">
+        <CountUp value={count} />
+      </span>
       <span className="sh-muted" style={{ fontSize: 14 }}>
         {avg !== undefined ? `avg ${duration(avg)}` : section === 'done' ? 'this week' : 'avg —'}
       </span>
@@ -84,9 +92,10 @@ export function Flow() {
             gap: 8,
           }}
         >
-          {PIPELINE.map((s) => (
+          {PIPELINE.map((s, i) => (
             <Column
               key={s}
+              link={i < PIPELINE.length - 1}
               section={s}
               count={counts[s]}
               avg={s === 'done' ? undefined : avg[s]}

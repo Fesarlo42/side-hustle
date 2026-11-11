@@ -632,3 +632,68 @@ a {
     transform: scale(1);
   }
 }
+
+/* ---------- Flow, quality, leaderboard ---------- */
+.sh-flow-link {
+  position: absolute;
+  top: 50%;
+  right: -10px;
+  width: 12px;
+  height: 4px;
+  z-index: 1;
+  border-radius: 4px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--lumen-color-action-primary) 0 4px,
+    transparent 4px 8px
+  );
+  background-size: 8px 4px;
+  animation: sh-flow 0.8s linear infinite;
+}
+@keyframes sh-flow {
+  to {
+    background-position: 8px 0;
+  }
+}
+.sh-donut-arc {
+  transition: stroke-dasharray 0.6s ease-out;
+}
+.sh-rank {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--lumen-neutral-100);
+  color: var(--lumen-neutral-700);
+}
+/* Medal tones for the top three (number shown too) */
+.sh-rank-1 {
+  background: var(--lumen-yellow-500);
+  color: var(--lumen-neutral-900);
+  box-shadow: 0 0 0 3px var(--lumen-yellow-100);
+}
+.sh-rank-2 {
+  background: var(--lumen-neutral-100);
+  color: var(--lumen-neutral-900);
+  box-shadow: 0 0 0 3px var(--lumen-neutral-50);
+}
+.sh-rank-3 {
+  background: var(--lumen-red-100);
+  color: var(--lumen-red-800);
+}
+.sh-rank-bar {
+  display: block;
+  height: 4px;
+  margin-left: 30px;
+  border-radius: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--lumen-color-action-primary) var(--w),
+    var(--lumen-neutral-100) var(--w)
+  );
+  transition: background 0.6s ease-out;
+}

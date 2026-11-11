@@ -103,6 +103,12 @@ describe('Flow', () => {
     expect(stuck).toHaveTextContent('Stalled · 2 h since the owner’s reminder')
   })
 
+  it('draws a moving connector between each pipeline stage', () => {
+    seed()
+    render(<Flow />)
+    expect(screen.getByRole('list', { name: 'Pipeline' }).querySelectorAll('.sh-flow-link')).toHaveLength(4)
+  })
+
   it('says so when nothing is stuck', () => {
     seedStore(snapshot({ tasks: [task({ id: 'a', section: 'doing' })] }))
     render(<Flow />)
