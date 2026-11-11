@@ -5,6 +5,7 @@ import { CorePanel } from '@/components/Core/CorePanel'
 import { KpiLeft, KpiRight } from '@/components/KpiStrip/KpiStrip'
 import { useReducedMotionPref } from '@/hooks/useReducedMotionPref'
 import { useDash } from '@/store/store'
+import { EventToasts } from './EventToasts'
 import { healthTint } from '@/theme'
 
 /**
@@ -33,7 +34,10 @@ export function Hero() {
       <div className="sh-top sh-hero__grid">
         <KpiLeft />
         <CorePanel />
-        <KpiRight />
+        <div className="sh-hero__right">
+          <KpiRight />
+          <EventToasts />
+        </div>
       </div>
       <a className="sh-hero__more" href="#details">
         Work, people and flow <span aria-hidden>↓</span>

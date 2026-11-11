@@ -494,3 +494,10 @@ a {
     grid-template-columns: 1fr;
   }
 }
+
+/* Right of the core: key numbers with the live pop-ups under them. */
+.sh-hero__right {
+  display: grid;
+  gap: 14px;
+  align-content: center;
+}
