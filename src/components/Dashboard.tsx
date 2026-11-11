@@ -12,6 +12,7 @@ import { PledgeFlow } from '@/components/PledgeFlow/PledgeFlow'
 import { Quality } from '@/components/Quality/Quality'
 import { WorkCards } from '@/components/WorkCards/WorkCards'
 import type { DataSource } from '@/data/source'
+import { useReducedMotionPref } from '@/hooks/useReducedMotionPref'
 import { useDash } from '@/store/store'
 
 /**
@@ -22,6 +23,7 @@ import { useDash } from '@/store/store'
 export function Dashboard({ source }: { source: DataSource }) {
   const connect = useDash((s) => s.connect)
   const loaded = useDash((s) => s.loaded)
+  const reduced = useReducedMotionPref()
   useEffect(() => connect(source), [connect, source])
 
   if (!loaded)
@@ -34,7 +36,7 @@ export function Dashboard({ source }: { source: DataSource }) {
   return (
     <>
       <Header />
-      <main>
+      <main className={reduced ? 'sh-reduced' : undefined}>
         {/* Above the fold: the core and the key numbers. */}
         <Hero />
         {/* Below the fold: the detail, as cards. */}

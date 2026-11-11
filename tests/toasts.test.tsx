@@ -17,7 +17,17 @@ const base = () =>
 
 const push = (e: Partial<DashEvent> & Pick<DashEvent, 'id' | 'type' | 'text'>) =>
   act(() => {
-    useDash.setState((s) => applyMessage(s, { kind: 'event', event: { at: '2026-11-15T17:00:00.000Z', actor: { type: 'system', id: 's' }, related: [], ...e } }))
+    useDash.setState((s) =>
+      applyMessage(s, {
+        kind: 'event',
+        event: {
+          at: '2026-11-15T17:00:00.000Z',
+          actor: { type: 'system', id: 's' },
+          related: [],
+          ...e,
+        },
+      }),
+    )
   })
 
 afterEach(() => vi.useRealTimers())
@@ -28,18 +38,36 @@ describe('Event toasts', () => {
     seedStore(base())
     render(<EventToasts />)
     push({ id: 'e1', type: 'task.claimed', text: 'Rita’s agent claimed “Cache node_modules”' })
-    expect(screen.getByRole('status', { name: 'Latest events' })).toHaveTextContent('Rita’s agent claimed “Cache node_modules”')
+    expect(screen.getByRole('status', { name: 'Latest events' })).toHaveTextContent(
+      'Rita’s agent claimed “Cache node_modules”',
+    )
     act(() => {
       vi.advanceTimersByTime(7000)
     })
-    expect(screen.getByRole('status', { name: 'Latest events' })).not.toHaveTextContent('Rita’s agent claimed')
+    expect(screen.getByRole('status', { name: 'Latest events' })).not.toHaveTextContent(
+      'Rita’s agent claimed',
+    )
   })
 
   it('skips noise and events that were already there', () => {
-    seedStore({ ...base(), events: [{ id: 'old', at: '2026-11-15T16:00:00.000Z', type: 'task.claimed', text: 'Old news', actor: { type: 'system', id: 's' }, related: [] }] })
+    seedStore({
+      ...base(),
+      events: [
+        {
+          id: 'old',
+          at: '2026-11-15T16:00:00.000Z',
+          type: 'task.claimed',
+          text: 'Old news',
+          actor: { type: 'system', id: 's' },
+          related: [],
+        },
+      ],
+    })
     render(<EventToasts />)
     push({ id: 'e2', type: 'insight.updated', text: 'The agents paused 2 tasks' })
-    expect(screen.getByRole('status', { name: 'Latest events' })).not.toHaveTextContent(/Old news|paused/)
+    expect(screen.getByRole('status', { name: 'Latest events' })).not.toHaveTextContent(
+      /Old news|paused/,
+    )
   })
 
   it('keeps at most three', () => {
@@ -51,7 +79,6 @@ describe('Event toasts', () => {
     expect(box).not.toHaveTextContent('Approved 2')
   })
 })
-
 
 describe('Hero with toasts', () => {
   it('shows the latest events next to the key numbers', async () => {

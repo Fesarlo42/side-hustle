@@ -1,15 +1,10 @@
 'use client'
-import {
-  Segment,
-  Segmented,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-} from '@iubenda/lumen-next'
+import { Segment, Segmented } from '@iubenda/lumen-next'
+import { motion as m } from 'framer-motion'
 import { useMemo, useState } from 'react'
-import { Avatar, IconText, Panel } from '@/components/ui/ui'
+import { initials } from '@/components/Core/Core'
+import { IconText, Panel } from '@/components/ui/ui'
+import { useReducedMotionPref } from '@/hooks/useReducedMotionPref'
 import { pct } from '@/lib/format'
 import { leftPct, sortedMembers, type MemberSort } from '@/store/selectors'
 import { useData, useDash } from '@/store/store'
@@ -25,58 +20,144 @@ const STATUS: Record<
   offline: { text: 'Offline', icon: 'x-circle', tone: color.dangerStrong },
 }
 
-function PledgeCell({ m }: { m: Member }) {
-  const changed = m.pledgePrevPct !== undefined && m.pledgePrevPct !== m.pledgePct
-  const ratio = m.pledgePct > 0 ? Math.min(1, m.pledgeUsedPct / m.pledgePct) : 0
+const fmt = (n: number) => pct(n, n % 1 === 0 ? 0 : 1)
+
+/** The pledge as a ring: the whole ring is the pledge, the filled arc is what's been used. */
+function PledgeRing({ m: member, size = 68 }: { m: Member; size?: number }) {
+  const stroke = 6
+  const r = (size - stroke) / 2
+  const c = 2 * Math.PI * r
+  const ratio = member.pledgePct > 0 ? Math.min(1, member.pledgeUsedPct / member.pledgePct) : 0
+  const offline = member.status === 'offline'
   return (
-    <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: '52px minmax(60px, 1fr) auto',
-        gap: 10,
-        alignItems: 'center',
-        minWidth: 220,
-      }}
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      role="meter"
+      aria-label={`${member.name}: ${fmt(member.pledgeUsedPct)} of ${fmt(member.pledgePct)} used`}
+      aria-valuenow={member.pledgeUsedPct}
+      aria-valuemin={0}
+      aria-valuemax={member.pledgePct}
+      className={member.status === 'working' ? 'sh-ring-working' : undefined}
     >
-      <span className="sh-num">
-        <strong>{pct(m.pledgePct)}</strong>
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={r}
+        fill={color.actionSubtle}
+        stroke={color.mutedSubtle}
+        strokeWidth={stroke}
+        strokeDasharray={offline ? '4 4' : undefined}
+      />
+      {member.pledgePct > 0 && (
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="none"
+          stroke={offline ? color.muted : color.action}
+          strokeWidth={stroke}
+          strokeLinecap="round"
+          strokeDasharray={`${c * ratio} ${c}`}
+          transform={`rotate(-90 ${size / 2} ${size / 2})`}
+          style={{ transition: 'stroke-dasharray 0.6s ease-out' }}
+        />
+      )}
+      {member.avatarUrl ? (
+        <>
+          <clipPath id={`ring-face-${member.id}`}>
+            <circle cx={size / 2} cy={size / 2} r={r - stroke / 2 - 1} />
+          </clipPath>
+          <image
+            href={member.avatarUrl}
+            x={stroke + 1}
+            y={stroke + 1}
+            width={size - 2 * (stroke + 1)}
+            height={size - 2 * (stroke + 1)}
+            preserveAspectRatio="xMidYMid slice"
+            clipPath={`url(#ring-face-${member.id})`}
+            style={offline ? { filter: 'grayscale(1)' } : undefined}
+          />
+        </>
+      ) : (
+        <text
+          x="50%"
+          y="50%"
+          dy="0.35em"
+          textAnchor="middle"
+          fontSize={17}
+          fontWeight={700}
+          fill={color.text}
+        >
+          {initials(member.name)}
+        </text>
+      )}
+    </svg>
+  )
+}
+
+function Person({
+  m: member,
+  selected,
+  dim,
+  onSelect,
+}: {
+  m: Member
+  selected: boolean
+  dim: boolean
+  onSelect: () => void
+}) {
+  const changed = member.pledgePrevPct !== undefined && member.pledgePrevPct !== member.pledgePct
+  const status = STATUS[member.status]
+  const detailsId = `member-${member.id}-details`
+  return (
+    <button
+      id={`member-${member.id}`}
+      data-name={member.name}
+      aria-label={member.name}
+      aria-describedby={detailsId}
+      aria-pressed={selected}
+      onClick={onSelect}
+      className={`sh-person ${dim ? 'sh-dim' : 'sh-lit'}`}
+      data-selected={selected}
+      style={{ opacity: member.status === 'offline' && !selected ? 0.75 : undefined }}
+    >
+      <PledgeRing m={member} />
+      <span style={{ fontWeight: 700, lineHeight: 1.2 }}>
+        {member.name}
         {changed && (
           <span
-            title={`Changed this week (was ${m.pledgePrevPct}%)`}
-            aria-label={`Changed this week (was ${m.pledgePrevPct}%)`}
+            title={`Changed this week (was ${member.pledgePrevPct}%)`}
             style={{ marginLeft: 4, color: color.action }}
           >
             ▲
           </span>
         )}
       </span>
-      {/* Used is a fill inside the pledge */}
-      <div
-        role="meter"
-        aria-label={`${m.name}: ${pct(m.pledgeUsedPct, 1)} of ${pct(m.pledgePct)} used`}
-        aria-valuenow={m.pledgeUsedPct}
-        aria-valuemin={0}
-        aria-valuemax={m.pledgePct}
-        style={{ height: 10, borderRadius: 10, background: color.mutedSubtle, overflow: 'hidden' }}
-      >
-        <div
-          style={{
-            width: `${ratio * 100}%`,
-            height: '100%',
-            background: color.action,
-            transition: 'width 0.25s ease-out',
-          }}
-        />
-      </div>
-      <span className="sh-muted sh-num" style={{ fontSize: 14, whiteSpace: 'nowrap' }}>
-        {pct(m.pledgeUsedPct, m.pledgeUsedPct % 1 === 0 ? 0 : 1)} used
+      <span id={detailsId} style={{ display: 'grid', gap: 2, justifyItems: 'center' }}>
+        <span className="sh-muted" style={{ fontSize: 13 }}>
+          {member.team}
+        </span>
+        <strong className="sh-num" style={{ fontSize: 18 }}>
+          {fmt(leftPct(member))} left
+        </strong>
+        <span className="sh-muted sh-num" style={{ fontSize: 13 }}>
+          {fmt(member.pledgeUsedPct)} of {fmt(member.pledgePct)}
+        </span>
+        <span style={{ fontSize: 13 }}>
+          <IconText icon={status.icon} tone={status.tone}>
+            {status.text}
+          </IconText>
+        </span>
       </span>
-    </div>
+    </button>
   )
 }
 
 export function Members() {
   const data = useData()
+  const reduced = useReducedMotionPref()
   const [sort, setSort] = useState<MemberSort>('left')
   const selected = useDash((s) => s.selectedMemberId)
   const select = useDash((s) => s.selectMember)
@@ -99,62 +180,26 @@ export function Members() {
         </Segmented>
       }
     >
-      <div data-testid="members-scroll" className="sh-members" style={{ overflowX: 'auto' }}>
-        <Table label="Members of the pool">
-          <TableHead>
-            <TableRow>
-              <TableCell>Person</TableCell>
-              <TableCell>Pledge</TableCell>
-              <TableCell align="end">Left</TableCell>
-              <TableCell>Status</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {members.map((m) => {
-              const isSel = selected === m.id
-              const status = STATUS[m.status]
-              return (
-                <TableRow key={m.id} className={selected && !isSel ? 'sh-dim' : 'sh-lit'}>
-                  <TableCell>
-                    <span
-                      id={`member-${m.id}`}
-                      style={{ display: 'flex', alignItems: 'center', gap: 10 }}
-                    >
-                      <Avatar member={m} size={30} />
-                      <span style={{ display: 'grid', lineHeight: 1.25 }}>
-                        <button
-                          className="sh-linkbtn"
-                          aria-pressed={isSel}
-                          onClick={() => select(m.id)}
-                          style={{ fontWeight: 700 }}
-                        >
-                          {m.name}
-                        </button>
-                        <span className="sh-muted" style={{ fontSize: 14 }}>
-                          {m.team}
-                        </span>
-                      </span>
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <PledgeCell m={m} />
-                  </TableCell>
-                  <TableCell align="end">
-                    <strong className="sh-num">
-                      {pct(leftPct(m), leftPct(m) % 1 === 0 ? 0 : 1)}
-                    </strong>
-                  </TableCell>
-                  <TableCell>
-                    <IconText icon={status.icon} tone={status.tone}>
-                      {status.text}
-                    </IconText>
-                  </TableCell>
-                </TableRow>
-              )
-            })}
-          </TableBody>
-        </Table>
-      </div>
+      <p className="sh-muted" style={{ margin: '0 0 12px', fontSize: 14 }}>
+        Ring = this week’s pledge · filled = used on other people’s tasks
+      </p>
+      <ul aria-label="Members of the pool" className="sh-people">
+        {members.map((mm) => (
+          <m.li
+            key={mm.id}
+            layout={!reduced}
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            style={{ listStyle: 'none' }}
+          >
+            <Person
+              m={mm}
+              selected={selected === mm.id}
+              dim={!!selected && selected !== mm.id}
+              onSelect={() => select(mm.id)}
+            />
+          </m.li>
+        ))}
+      </ul>
     </Panel>
   )
 }

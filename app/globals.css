@@ -501,3 +501,63 @@ a {
   gap: 14px;
   align-content: center;
 }
+/* ---------- Members as people ---------- */
+.sh-people {
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+  gap: 10px;
+}
+.sh-person {
+  width: 100%;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 12px 8px;
+  border-radius: 18px;
+  border: 1px solid transparent;
+  background: var(--lumen-color-surface-subtle);
+  color: inherit;
+  cursor: pointer;
+  text-align: center;
+  transition:
+    transform 0.15s ease-out,
+    box-shadow 0.15s ease-out,
+    border-color 0.15s ease-out;
+}
+.sh-person:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px -14px rgb(59 41 255 / 45%);
+  border-color: var(--lumen-color-border-default);
+}
+.sh-person[data-selected='true'] {
+  border-color: var(--lumen-color-action-primary);
+  box-shadow: 0 0 0 3px rgb(59 41 255 / 18%);
+}
+.sh-ring-working {
+  animation: sh-ring 2.4s ease-in-out infinite;
+  border-radius: 50%;
+}
+@keyframes sh-ring {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 0 rgb(59 41 255 / 0%));
+  }
+  50% {
+    filter: drop-shadow(0 0 8px rgb(59 41 255 / 55%));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sh-ring-working {
+    animation: none;
+  }
+}
+
+/* The page toggle stops CSS animations too, not only the OS setting. */
+.sh-reduced *,
+.sh-reduced *::before,
+.sh-reduced *::after {
+  animation: none !important;
+  transition: none !important;
+}

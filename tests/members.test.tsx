@@ -33,7 +33,6 @@ const seed = () =>
           pledgePct: 30,
           pledgePrevPct: 10,
           pledgeUsedPct: 2,
-          pledgeSource: 'answered',
         }),
         member({
           id: 'm_bruno',
@@ -42,24 +41,17 @@ const seed = () =>
           pledgePct: 10,
           pledgeUsedPct: 5,
           status: 'offline',
-          pledgeSource: 'carried_over',
         }),
-        member({
-          id: 'm_leo',
-          name: 'Leo Martins',
-          team: 'Payments',
-          pledgePct: 0,
-          pledgeSource: 'default_zero',
-        }),
+        member({ id: 'm_leo', name: 'Leo Martins', team: 'Payments', pledgePct: 0 }),
       ],
     }),
   )
 
-const names = () =>
-  screen
-    .getAllByRole('row')
-    .slice(1)
-    .map((r) => within(r).getByRole('button').textContent)
+const people = () =>
+  within(screen.getByRole('list', { name: 'Members of the pool' })).getAllByRole('listitem')
+const names = () => people().map((li) => within(li).getByRole('button').getAttribute('data-name'))
+const person = (name: string) =>
+  people().find((li) => li.textContent?.includes(name)) as HTMLElement
 
 describe('Members', () => {
   it('lists everyone, sorted by pledge left', () => {
@@ -84,26 +76,42 @@ describe('Members', () => {
     expect(names().slice(0, 3)).toEqual(['Ana Silva', 'Marta Ribeiro', 'Rui Carvalho'])
   })
 
-  it('shows pledge, used, left and status in words, without the answer column', () => {
+  it('shows pledge, used, left and status in words', () => {
     seed()
     render(<Members />)
-    const ana = screen.getByRole('button', { name: 'Ana Silva' }).closest('tr') as HTMLElement
+    const ana = person('Ana Silva')
     expect(ana).toHaveTextContent('Design')
-    expect(ana).toHaveTextContent('30%')
-    expect(ana).toHaveTextContent('24% used')
-    expect(ana).toHaveTextContent('6%')
+    expect(ana).toHaveTextContent('6% left')
+    expect(ana).toHaveTextContent('24% of 30%')
     expect(ana).toHaveTextContent('Working')
-    const bruno = screen.getByRole('button', { name: 'Bruno Costa' }).closest('tr') as HTMLElement
-    expect(bruno).toHaveTextContent('Offline')
-    expect(screen.queryByRole('columnheader', { name: 'Answer' })).not.toBeInTheDocument()
+    expect(
+      within(ana).getByRole('meter', { name: 'Ana Silva: 24% of 30% used' }),
+    ).toBeInTheDocument()
+    expect(person('Bruno Costa')).toHaveTextContent('Offline')
     expect(document.body).not.toHaveTextContent(/Answered|Carried over/)
+  })
+
+  it('shows the photo inside the ring when there is one', () => {
+    seedStore(
+      snapshot({
+        members: [
+          member({ id: 'm_ana', name: 'Ana Silva', avatarUrl: 'https://example.test/ana.png' }),
+        ],
+      }),
+    )
+    render(<Members />)
+    expect(person('Ana Silva').querySelector('image')).toHaveAttribute(
+      'href',
+      'https://example.test/ana.png',
+    )
   })
 
   it('marks a pledge changed mid-week', () => {
     seed()
     render(<Members />)
-    const marta = screen.getByRole('button', { name: 'Marta Ribeiro' }).closest('tr') as HTMLElement
-    expect(within(marta).getByTitle('Changed this week (was 10%)')).toBeInTheDocument()
+    expect(
+      within(person('Marta Ribeiro')).getByTitle('Changed this week (was 10%)'),
+    ).toBeInTheDocument()
   })
 
   it('never shows anyone’s own weekly usage, tokens or cost', () => {
@@ -112,22 +120,14 @@ describe('Members', () => {
     expect(document.body.textContent).not.toMatch(/\btokens?\b|\bcosts?\b|€|\$/i)
   })
 
-  it('sets the row height itself: the full list, no inner scroll', () => {
-    seed()
-    render(<Members />)
-    expect(screen.getByTestId('members-scroll')).not.toHaveClass('sh-fill')
-  })
-
   it('selects a member on click and clears on second click', () => {
     seed()
     render(<Members />)
-    fireEvent.click(screen.getByRole('button', { name: 'Rui Carvalho' }))
+    const btn = () => within(person('Rui Carvalho')).getByRole('button')
+    fireEvent.click(btn())
     expect(useDash.getState().selectedMemberId).toBe('m_rui')
-    expect(screen.getByRole('button', { name: 'Rui Carvalho' })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    )
-    fireEvent.click(screen.getByRole('button', { name: 'Rui Carvalho' }))
+    expect(btn()).toHaveAttribute('aria-pressed', 'true')
+    fireEvent.click(btn())
     expect(useDash.getState().selectedMemberId).toBeUndefined()
   })
 })

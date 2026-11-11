@@ -2,6 +2,7 @@
 import { act, render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { Dashboard } from '@/components/Dashboard'
+import { useDash } from '@/store/store'
 import { MockEngine } from '@/data/mock/engine'
 import type { DataSource } from '@/data/source'
 import type { StreamMessage } from '@/types'
@@ -43,5 +44,14 @@ describe('Dashboard', () => {
     await screen.findByText('Side hustle')
     act(() => engine.advance(30))
     expect(screen.getAllByText(/Add retry to card tokenisation/).length).toBeGreaterThan(0)
+  })
+
+  it('stops CSS animations too when the reduced-motion toggle is on', async () => {
+    useDash.setState({ reducedMotionOverride: true })
+    render(<Dashboard source={engineSource(new MockEngine())} />)
+    await screen.findByText('Side hustle')
+    expect(screen.getByRole('main')).toHaveClass('sh-reduced')
+    act(() => useDash.setState({ reducedMotionOverride: false }))
+    expect(screen.getByRole('main')).not.toHaveClass('sh-reduced')
   })
 })
