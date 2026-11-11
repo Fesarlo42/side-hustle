@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
+    "dev:live": "ASANA_TOKEN=\"$(security find-generic-password -s \"${ASANA_KEYCHAIN_ITEM:-asana-pat}\" -w)\" next dev",
+    "dev:mock": "SIDE_HUSTLE_SOURCE=mock next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",

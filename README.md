@@ -12,9 +12,18 @@ Needs Node 24+ and read access to the team.blue GitLab npm registry (for the Lum
 # Lumen comes from the private registry; .npmrc reads the token from GITLAB_TOKEN
 export GITLAB_TOKEN=<personal access token with read_api>
 npm install
-npm run dev                              # live Asana data, http://localhost:3000
-SIDE_HUSTLE_SOURCE=mock npm run dev      # the scripted demo instead
+npm run dev:live      # live Asana, token from the macOS keychain (see below), http://localhost:3000
+npm run dev           # Asana from data/asana-export.json when there's no token
+npm run dev:mock      # the scripted demo instead
 ```
+
+For `dev:live`, create an Asana personal access token (Asana → Settings → Apps → Developer apps → Create new token) and store it once in the keychain; it is read when the server starts and never written to a file:
+
+```bash
+security add-generic-password -a "$USER" -s asana-pat -w   # prompts for the token
+```
+
+Another keychain item name works too: `ASANA_KEYCHAIN_ITEM=<name> npm run dev:live`.
 
 With the mock, the page plays the scripted 3-minute demo at 10× (see below), and a demo bar in the bottom-right corner changes speed (1×, 10×, 60×), pauses and restarts it. The bar doesn't show with real data. `/dev/core` is a tuning page for the core with a slider per input.
 
