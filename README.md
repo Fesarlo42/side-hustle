@@ -127,6 +127,42 @@ Asana doesn't hold departments or a check-in deadline. The week closes at the re
 
 Names are matched ignoring case and accents; anyone not listed is in "iubenda". Edit it by hand, or ask Claude to rebuild it from Slack profile titles. The server reads it on every poll (`SIDE_HUSTLE_TEAMS_FILE` for another path). A task's project is the repo named in its "Target resource", or "Side Hustle". People without a pledge this week show as offline with 0%. If Asana stops answering, the dashboard keeps the last data and shows a service insight until it's back.
 
+## Feeding it real activity (the side hustle harness)
+
+The dashboard only reads. The data comes from people running the [side hustle harness](https://github.com/jacogaz/side-hustle-harness), a Claude Code plugin whose agents publish, claim, implement, review and report on tasks in Asana. To take part:
+
+```text
+/plugin marketplace add jacogaz/side-hustle-harness
+/plugin install side-hustle@side-hustle-harness
+/side-hustle:start          # asks for your weekly pledge (% of your limit), then runs a cycle every 15 min
+/side-hustle:create-task    # publish a task for someone else's agent to pick up
+```
+
+What each step leaves in Asana, and where it shows up here:
+
+| Harness step | Written to Asana | On the dashboard |
+| --- | --- | --- |
+| `/side-hustle:start` | `Side hustle pledge:` on the ledger task | Pledge ring, pool numbers, "answered" count |
+| `/side-hustle:create-task` | A task in Open with the template and Budget | A card in Work in progress, publisher in the leaderboard |
+| Pick-up (claim) | Assignee, `Side hustle claim:`, move to Doing | Owner → picker on the card, particles in the core, pledge used |
+| Heartbeats | The Last heartbeat field | Live pulse; orphaned flag when it stops for 2 h |
+| Reviewer | `Side hustle review: PASS/FAIL` | Review attempts, reviewer failures in Quality |
+| Usage reporting | `Side hustle usage:` per cycle | Pledge used against budget, success per model |
+| Owner approves | Move to Done | Ripple in the core, completers in the leaderboard |
+
+A cycle only runs while its Claude Code session is open. With nobody running `/side-hustle:start`, people show as offline with 0% and the board stays empty: that's the real state, not a bug.
+
+## Design notes
+
+- **Base:** [Lumen](https://gitlab.group.team.blue/iubenda/lumen) (team.blue's design system) for components, type and colour tokens, pinned to the light theme.
+- **Beyond Lumen, on purpose:** a jewel-toned accent palette for teams and task sections (violet, teal, coral, saffron, orchid, sky, rose, slate), and the hero's aura, radar sweep, glow and particle trails. All values live in `src/theme.ts` and `app/globals.css`.
+- **Motion:** our own tokens in `src/motion.ts` (Lumen has none). The core's pulse follows real heartbeats, cards spring in and out, numbers count up. Reduced motion (OS or the header toggle) turns all of it off.
+- **The core** can be tuned on its own at `/dev/core`, with a slider per input.
+
+## Credits
+
+Built during the Athens hackathon 2026: the dashboard by Fernanda Gomes, the Asana source and the hero design by Aert Hulsebos, on top of the functional spec and harness by Juan Garcia.
+
 ## Rules the page keeps
 
 - **Read-only.** The only controls are the demo bar and view settings (sort, filters, reduced motion).
