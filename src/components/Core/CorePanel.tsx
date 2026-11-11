@@ -5,6 +5,7 @@ import { Core } from './Core'
 import { useNow } from '@/hooks/useNow'
 import { useReducedMotionPref } from '@/hooks/useReducedMotionPref'
 import { ago } from '@/lib/format'
+import { useTeamColors } from '@/lib/teams'
 import { motion } from '@/motion'
 import { coreInputs, kpis } from '@/store/selectors'
 import { focusRef, useData, useDash } from '@/store/store'
@@ -17,6 +18,7 @@ export function CorePanel() {
   const selected = useDash((s) => s.selectedMemberId)
   const reduced = useReducedMotionPref()
   const now = useNow(15_000)
+  const teams = useTeamColors()
   const inputs = useMemo(() => coreInputs(data), [data])
   const k = useMemo(() => kpis(data), [data])
   const members = useMemo(
@@ -25,8 +27,9 @@ export function CorePanel() {
         ...mm,
         name: data.members[mm.id]?.name ?? mm.id,
         avatarUrl: data.members[mm.id]?.avatarUrl,
+        teamColor: teams[data.members[mm.id]?.team ?? ''],
       })),
-    [inputs, data.members],
+    [inputs, data.members, teams],
   )
   const latest = useMemo(
     () => [...data.events].reverse().find((e) => e.type !== 'task.heartbeat'),

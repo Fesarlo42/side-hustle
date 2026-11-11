@@ -6,6 +6,7 @@ import { initials } from '@/components/Core/Core'
 import { IconText, Panel } from '@/components/ui/ui'
 import { useReducedMotionPref } from '@/hooks/useReducedMotionPref'
 import { pct } from '@/lib/format'
+import { useTeamColors } from '@/lib/teams'
 import { leftPct, sortedMembers, type MemberSort } from '@/store/selectors'
 import { useData, useDash } from '@/store/store'
 import { color } from '@/theme'
@@ -56,7 +57,7 @@ function PledgeRing({ m: member, size = 68 }: { m: Member; size?: number }) {
           cy={size / 2}
           r={r}
           fill="none"
-          stroke={offline ? color.muted : color.action}
+          stroke={offline ? color.muted : 'var(--team)'}
           strokeWidth={stroke}
           strokeLinecap="round"
           strokeDasharray={`${c * ratio} ${c}`}
@@ -101,11 +102,14 @@ function Person({
   m: member,
   selected,
   dim,
+  team,
   onSelect,
 }: {
   m: Member
   selected: boolean
   dim: boolean
+  /** The member's team colour. */
+  team: string
   onSelect: () => void
 }) {
   const changed = member.pledgePrevPct !== undefined && member.pledgePrevPct !== member.pledgePct
@@ -121,7 +125,10 @@ function Person({
       onClick={onSelect}
       className={`sh-person ${dim ? 'sh-dim' : 'sh-lit'}`}
       data-selected={selected}
-      style={{ opacity: member.status === 'offline' && !selected ? 0.75 : undefined }}
+      style={{
+        ['--team' as string]: team,
+        opacity: member.status === 'offline' && !selected ? 0.75 : undefined,
+      }}
     >
       <PledgeRing m={member} />
       <span style={{ fontWeight: 700, lineHeight: 1.2 }}>
@@ -136,7 +143,7 @@ function Person({
         )}
       </span>
       <span id={detailsId} style={{ display: 'grid', gap: 2, justifyItems: 'center' }}>
-        <span className="sh-muted" style={{ fontSize: 13 }}>
+        <span className="sh-team" style={{ fontSize: 13 }}>
           {member.team}
         </span>
         <strong className="sh-num" style={{ fontSize: 18 }}>
@@ -162,6 +169,7 @@ export function Members() {
   const selected = useDash((s) => s.selectedMemberId)
   const select = useDash((s) => s.selectMember)
   const members = useMemo(() => sortedMembers(data, sort), [data, sort])
+  const teams = useTeamColors()
 
   return (
     <Panel
@@ -180,9 +188,26 @@ export function Members() {
         </Segmented>
       }
     >
-      <p className="sh-muted" style={{ margin: '0 0 12px', fontSize: 14 }}>
-        Ring = this week’s pledge · filled = used on other people’s tasks
-      </p>
+      <div
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '6px 18px',
+          alignItems: 'center',
+          margin: '0 0 12px',
+        }}
+      >
+        <span className="sh-muted" style={{ fontSize: 14 }}>
+          Ring = this week’s pledge · filled = used on other people’s tasks
+        </span>
+        <ul aria-label="Teams" className="sh-legend">
+          {Object.entries(teams).map(([team, c]) => (
+            <li key={team} className="sh-team" style={{ ['--team' as string]: c }}>
+              {team}
+            </li>
+          ))}
+        </ul>
+      </div>
       <ul aria-label="Members of the pool" className="sh-people">
         {members.map((mm) => (
           <m.li
@@ -195,6 +220,7 @@ export function Members() {
               m={mm}
               selected={selected === mm.id}
               dim={!!selected && selected !== mm.id}
+              team={teams[mm.team] ?? color.action}
               onSelect={() => select(mm.id)}
             />
           </m.li>

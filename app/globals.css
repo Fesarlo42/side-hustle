@@ -741,3 +741,31 @@ a {
   margin: 4px 2px;
   font-size: 14px;
 }
+
+/* ---------- Teams ---------- */
+.sh-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+}
+/* A team is a dot in its colour plus its name. */
+.sh-team {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--lumen-neutral-700);
+}
+.sh-team::before {
+  content: '';
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--team);
+}
+.sh-person {
+  border-top: 3px solid var(--team);
+}

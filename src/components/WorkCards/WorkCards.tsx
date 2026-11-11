@@ -6,6 +6,7 @@ import { Avatar, Bar, Empty, Panel } from '@/components/ui/ui'
 import { SECTION_LABEL } from '@/data/mock/text'
 import { useReducedMotionPref } from '@/hooks/useReducedMotionPref'
 import { duration, firstName, pct } from '@/lib/format'
+import { useTeamColors } from '@/lib/teams'
 import { nowOf, overBudget, tasksForMember, workCards } from '@/store/selectors'
 import { useData, useDash } from '@/store/store'
 import { color } from '@/theme'
@@ -22,6 +23,7 @@ const ACCENT: Partial<Record<Section, string>> = {
 
 function Card({ task, now, dim }: { task: Task; now: number; dim: boolean }) {
   const data = useData()
+  const teams = useTeamColors()
   const owner = data.members[task.ownerId]
   const picker = task.pickerId ? data.members[task.pickerId] : undefined
   const prev = task.previousPickerId ? data.members[task.previousPickerId] : undefined
@@ -67,10 +69,16 @@ function Card({ task, now, dim }: { task: Task; now: number; dim: boolean }) {
       <div
         style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', fontSize: 13 }}
       >
-        <Avatar member={owner} size={24} title={`Owner: ${owner?.name ?? 'unknown'}`} />
+        <Avatar
+          member={owner}
+          size={24}
+          ring={owner ? teams[owner.team] : undefined}
+          title={`Owner: ${owner?.name ?? 'unknown'}`}
+        />
         <Icon name="arrow-right" size="sm" label="picked up by" />
         <Avatar
           member={picker}
+          ring={picker ? teams[picker.team] : undefined}
           size={24}
           title={picker ? `Picker: ${picker.name}` : 'No picker yet'}
         />

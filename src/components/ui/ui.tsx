@@ -11,10 +11,13 @@ export function Avatar({
   member,
   size = 32,
   title,
+  ring,
 }: {
   member?: Pick<Member, 'name' | 'avatarUrl' | 'status'>
   size?: number
   title?: string
+  /** Border colour, e.g. the member's team colour. */
+  ring?: string
 }) {
   const label = title ?? member?.name ?? 'Nobody yet'
   const style = {
@@ -28,7 +31,9 @@ export function Avatar({
     fontWeight: 700,
     background: member ? color.actionSubtle : color.mutedSubtle,
     color: color.text,
-    border: `2px ${member?.status === 'offline' ? 'dashed' : 'solid'} ${member ? color.borderStrong : color.border}`,
+    borderWidth: 2,
+    borderStyle: member?.status === 'offline' ? 'dashed' : 'solid',
+    borderColor: ring ?? (member ? color.borderStrong : color.border),
     opacity: member?.status === 'offline' ? 0.6 : 1,
   } as const
   if (member?.avatarUrl)

@@ -47,3 +47,15 @@ export const healthTint: Record<Health, { fill: string; stroke: string; soft: st
 export const font = {
   body: v('font-body'),
 } as const
+
+/** Team (department) colours, from Lumen primitives. Teams are always named too. */
+export const teamPalette = [
+  v('blue-500'),
+  v('green-500'),
+  v('red-500'),
+  v('yellow-500'),
+  v('lavender-500'),
+  v('blue-900'),
+  v('red-800'),
+  v('green-900'),
+] as const

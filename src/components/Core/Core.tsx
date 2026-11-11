@@ -22,6 +22,8 @@ export interface CoreMember {
   name: string
   /** Shown in the dot instead of initials when present. */
   avatarUrl?: string
+  /** Team colour: a thin ring around the dot. */
+  teamColor?: string
   ring: 'outer' | 'inner' | 'none'
   offline: boolean
   faded: boolean
@@ -524,6 +526,16 @@ export function Core(props: CoreProps) {
                 strokeWidth={selected ? 4 : m.ring === 'inner' ? 3 : 2}
                 strokeDasharray={m.faded || m.offline ? '4 4' : undefined}
               />
+              {m.teamColor && (
+                <circle
+                  data-team-ring
+                  r={DOT_R + 4}
+                  fill="none"
+                  stroke={m.teamColor}
+                  strokeWidth={3}
+                  opacity={0.9}
+                />
+              )}
             </g>
           )
         })}
