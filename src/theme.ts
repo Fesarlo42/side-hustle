@@ -48,14 +48,30 @@ export const font = {
   body: v('font-body'),
 } as const
 
-/** Team (department) colours, from Lumen primitives. Teams are always named too. */
+/**
+ * Accent palette: softer, jewel-toned colours beside Lumen's brand blue, so
+ * teams and sections don't read as primary blue / green / red / yellow.
+ * Outside Lumen on purpose; this is the only place these values live.
+ */
+export const accent = {
+  violet: '#7C5CFF',
+  teal: '#14B8A6',
+  coral: '#FF6F7D',
+  saffron: '#F5A524',
+  orchid: '#C084FC',
+  sky: '#38BDF8',
+  rose: '#F472B6',
+  slate: '#64748B',
+} as const
+
+/** Team (department) colours. Teams are always named too. */
 export const teamPalette = [
-  v('blue-500'),
-  v('green-500'),
-  v('red-500'),
-  v('yellow-500'),
-  v('lavender-500'),
-  v('blue-900'),
-  v('red-800'),
-  v('green-900'),
+  accent.violet,
+  accent.teal,
+  accent.coral,
+  accent.saffron,
+  accent.orchid,
+  accent.sky,
+  accent.rose,
+  accent.slate,
 ] as const

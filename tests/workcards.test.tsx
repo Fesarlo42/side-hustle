@@ -117,8 +117,12 @@ describe('Work in progress', () => {
     const groups = screen.getAllByRole('group').map((g) => g.getAttribute('aria-label'))
     expect(groups).toEqual(['Doing: 2', 'To Review: 1', 'QA Review: 0', 'Needs Info: 0', 'Done: 1'])
     expect(screen.getByTestId('work-board')).toHaveClass('sh-kanban')
-    expect(within(screen.getByRole('group', { name: 'QA Review: 0' })).getByText('Nothing here')).toBeInTheDocument()
-    expect(within(screen.getByRole('group', { name: 'Doing: 2' })).getAllByRole('article')).toHaveLength(2)
+    expect(
+      within(screen.getByRole('group', { name: 'QA Review: 0' })).getByText('Nothing here'),
+    ).toBeInTheDocument()
+    expect(
+      within(screen.getByRole('group', { name: 'Doing: 2' })).getAllByRole('article'),
+    ).toHaveLength(2)
   })
 
   it('shows title, project and the Asana link only', () => {
@@ -180,7 +184,8 @@ describe('Work in progress', () => {
   it('scrolls long columns on their own', () => {
     seed()
     render(<WorkCards />)
-    for (const g of screen.getAllByRole('group')) expect(g.querySelector('.sh-lane-body')).not.toBeNull()
+    for (const g of screen.getAllByRole('group'))
+      expect(g.querySelector('.sh-lane-body')).not.toBeNull()
   })
 
   it('says so when nothing is running', () => {

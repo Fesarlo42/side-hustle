@@ -15,7 +15,10 @@ describe('team colours', () => {
   })
 
   it('cycles the palette when there are more teams than colours', () => {
-    const teams = Array.from({ length: TEAM_PALETTE.length + 1 }, (_, i) => `T${String(i).padStart(2, '0')}`)
+    const teams = Array.from(
+      { length: TEAM_PALETTE.length + 1 },
+      (_, i) => `T${String(i).padStart(2, '0')}`,
+    )
     const c = teamColors(teams)
     expect(c[teams[TEAM_PALETTE.length] as string]).toBe(c[teams[0] as string])
   })
@@ -24,14 +27,30 @@ describe('team colours', () => {
     seedStore(
       snapshot({
         members: [
-          member({ id: 'm_ana', name: 'Ana Silva', team: 'Design', pledgePct: 30, pledgeUsedPct: 10 }),
-          member({ id: 'm_rui', name: 'Rui Carvalho', team: 'Platform', pledgePct: 30, pledgeUsedPct: 10 }),
+          member({
+            id: 'm_ana',
+            name: 'Ana Silva',
+            team: 'Design',
+            pledgePct: 30,
+            pledgeUsedPct: 10,
+          }),
+          member({
+            id: 'm_rui',
+            name: 'Rui Carvalho',
+            team: 'Platform',
+            pledgePct: 30,
+            pledgeUsedPct: 10,
+          }),
         ],
       }),
     )
     render(<Members />)
     const legend = screen.getByRole('list', { name: 'Teams' })
-    expect(within(legend).getAllByRole('listitem').map((li) => li.textContent)).toEqual(['Design', 'Platform'])
+    expect(
+      within(legend)
+        .getAllByRole('listitem')
+        .map((li) => li.textContent),
+    ).toEqual(['Design', 'Platform'])
     const colors = teamColors(['Design', 'Platform'])
     const ana = screen.getByRole('button', { name: 'Ana Silva' })
     expect(ana.style.getPropertyValue('--team')).toBe(colors.Design)
@@ -48,7 +67,16 @@ describe('team colours elsewhere', () => {
         heartbeatsPerMin={0}
         poolLeft={0.5}
         health="calm"
-        members={[{ id: 'a', name: 'Ana Silva', ring: 'outer', offline: false, faded: false, teamColor: 'var(--lumen-green-500)' }]}
+        members={[
+          {
+            id: 'a',
+            name: 'Ana Silva',
+            ring: 'outer',
+            offline: false,
+            faded: false,
+            teamColor: 'var(--lumen-green-500)',
+          },
+        ]}
         flows={[]}
         rippleSeq={0}
         wobble={false}
@@ -66,13 +94,43 @@ describe('team colours elsewhere', () => {
     const { task } = await import('./fixtures')
     seedStore(
       snapshot({
-        members: [member({ id: 'm_ana', name: 'Ana Silva', team: 'Design' }), member({ id: 'm_rui', name: 'Rui Carvalho', team: 'Platform' })],
-        tasks: [task({ id: 't1', title: 'A task', section: 'doing', ownerId: 'm_ana', pickerId: 'm_rui' })],
+        members: [
+          member({ id: 'm_ana', name: 'Ana Silva', team: 'Design' }),
+          member({ id: 'm_rui', name: 'Rui Carvalho', team: 'Platform' }),
+        ],
+        tasks: [
+          task({
+            id: 't1',
+            title: 'A task',
+            section: 'doing',
+            ownerId: 'm_ana',
+            pickerId: 'm_rui',
+          }),
+        ],
       }),
     )
     render(<WorkCards />)
     const colors = teamColors(['Design', 'Platform'])
-    expect(screen.getByRole('img', { name: 'Owner: Ana Silva' }).style.borderColor).toBe(colors.Design)
-    expect(screen.getByRole('img', { name: 'Picker: Rui Carvalho' }).style.borderColor).toBe(colors.Platform)
+    // jsdom normalises colours (hex → rgb), so compare through the same parser.
+    const norm = (c?: string) => {
+      const el = document.createElement('div')
+      el.style.borderColor = c ?? ''
+      return el.style.borderColor
+    }
+    expect(screen.getByRole('img', { name: 'Owner: Ana Silva' }).style.borderColor).toBe(
+      norm(colors.Design),
+    )
+    expect(screen.getByRole('img', { name: 'Picker: Rui Carvalho' }).style.borderColor).toBe(
+      norm(colors.Platform),
+    )
+  })
+})
+
+describe('palette', () => {
+  it('avoids the primary blue / green / red / yellow look', () => {
+    const primaries = /--lumen-(blue|green|red|yellow)-500/
+    for (const c of TEAM_PALETTE) expect(c).not.toMatch(primaries)
+    expect(new Set(TEAM_PALETTE).size).toBe(TEAM_PALETTE.length)
+    expect(TEAM_PALETTE.length).toBeGreaterThanOrEqual(6)
   })
 })

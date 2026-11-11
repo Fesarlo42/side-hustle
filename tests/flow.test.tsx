@@ -106,7 +106,9 @@ describe('Flow', () => {
   it('draws a moving connector between each pipeline stage', () => {
     seed()
     render(<Flow />)
-    expect(screen.getByRole('list', { name: 'Pipeline' }).querySelectorAll('.sh-flow-link')).toHaveLength(4)
+    expect(
+      screen.getByRole('list', { name: 'Pipeline' }).querySelectorAll('.sh-flow-link'),
+    ).toHaveLength(4)
   })
 
   it('says so when nothing is stuck', () => {

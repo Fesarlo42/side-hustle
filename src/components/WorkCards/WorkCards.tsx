@@ -9,16 +9,16 @@ import { duration, firstName, pct } from '@/lib/format'
 import { useTeamColors } from '@/lib/teams'
 import { nowOf, overBudget, tasksForMember, workCards } from '@/store/selectors'
 import { useData, useDash } from '@/store/store'
-import { color } from '@/theme'
+import { accent, color } from '@/theme'
 import type { Section, Task } from '@/types'
 
 /** One accent per section (the section name is always written too). */
 const ACCENT: Partial<Record<Section, string>> = {
-  doing: color.action,
-  to_review: color.warning,
-  qa_review: color.borderStrong,
-  needs_info: color.dangerStrong,
-  done: color.success,
+  doing: accent.violet,
+  to_review: accent.saffron,
+  qa_review: accent.orchid,
+  needs_info: accent.coral,
+  done: accent.teal,
 }
 
 function Card({ task, now, dim }: { task: Task; now: number; dim: boolean }) {
